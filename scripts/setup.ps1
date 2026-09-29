@@ -27,8 +27,15 @@ if($ModelDirectory){
 }
 if($FfmpegExecutable){$config.ffmpeg=(Get-Item -LiteralPath $FfmpegExecutable.Trim('"')).FullName}
 if(-not (Get-Command node.exe -ErrorAction SilentlyContinue)){throw 'Install Node.js 22 or newer, then run setup again.'}
+if ([int]((& node.exe --version).TrimStart('v').Split('.')[0]) -lt 22) { throw 'Node.js 22 or newer is required. Upgrade Node.js and reopen PowerShell.' }
+& $config.ffmpeg -version | Out-Null
+if ($LASTEXITCODE -ne 0) { throw 'FFmpeg failed to launch.' }
+$probe=if($config.ffmpeg -eq 'ffmpeg'){'ffprobe'}else{Join-Path (Split-Path $config.ffmpeg) 'ffprobe.exe'}
+& $probe -version | Out-Null
+if ($LASTEXITCODE -ne 0) { throw 'FFprobe failed to launch. Install the complete FFmpeg package.' }
 $runtime=$config.runtimeDir
-if($LlamaDirectory -or -not $runtime -or -not (Test-Path (Join-Path $runtime 'llama-cli.exe'))){
+$backendChanged=$PSBoundParameters.ContainsKey('Backend') -and ($config.runtimeBackend -ne $Backend)
+if($backendChanged -or $LlamaDirectory -or -not $runtime -or -not (Test-Path (Join-Path $runtime 'llama-cli.exe'))){
   # Versioned folders preserve existing builds. Downloads are pinned and verified before extraction.
   $tag='prism-b10743-adfffbe'
   $runtime=Join-Path $Destination ('runtime\'+$tag+'-'+$Backend)
@@ -64,7 +71,7 @@ if($LlamaDirectory -or -not $runtime -or -not (Test-Path (Join-Path $runtime 'll
     Get-ChildItem (Join-Path $stage 'unpacked') -Recurse -File | Where-Object {$_.Extension -in '.exe','.dll'} | Copy-Item -Destination $runtime
   }
   $config.runtimeDir=$runtime
-  if(-not $LlamaDirectory){$config.runtimeLibraryDirs=@()}
+  if(-not $LlamaDirectory){$config.runtimeLibraryDirs=@();$config.runtimeBackend=$Backend}else{$config.Remove('runtimeBackend')}
 }
 $env:PATH=(@($config.runtimeLibraryDirs)+@($env:PATH) -join ';')
 & (Join-Path $runtime 'llama-cli.exe') --version
@@ -72,4 +79,4 @@ if($LASTEXITCODE -ne 0){throw 'Runtime failed to launch; existing configuration 
 $tempConfig=$configPath+'.tmp'
 $config | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $tempConfig -Encoding utf8
 Move-Item -LiteralPath $tempConfig -Destination $configPath -Force
-Write-Host 'Onigiri is ready. Select your Bonsai GGUF folder and matching mmproj in Model settings. Models are not downloaded.'
+Write-Host 'Onigiri is ready. Select your Bonsai GGUF folder and matching mmproj in Settings. Models are not downloaded.'

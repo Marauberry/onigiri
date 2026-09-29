@@ -1,9 +1,10 @@
 # Example ComfyUI workflows
 
-Two ready-made MiniMax H3 graphs built around the Onigiri nodes. Both are plain ComfyUI workflow files: drag one onto the ComfyUI canvas, or use **Workflow → Open**.
+A minimal starter and two advanced MiniMax H3 graphs built around the Onigiri nodes. All are plain ComfyUI workflow files: drag one onto the ComfyUI canvas, or use **Workflow → Open**.
 
 | File | What it is |
 | --- | --- |
+| `Onigiri Starter.json` | Start here: native ComfyUI + Onigiri only, with no LoRAs or other node packs. |
 | `Onigiri Minimax H3.json` | Single pass. Onigiri scene guide → native H3 sampling → video + audio decode → MP4. |
 | `OMMH3 2nd Pass.json` | Two pass. The same first pass, then a latent upscale and a short second pass at the final size. |
 
@@ -11,17 +12,21 @@ Two ready-made MiniMax H3 graphs built around the Onigiri nodes. Both are plain 
 
 - ComfyUI with native MiniMax H3 support (`comfy_extras/nodes_minimax_h3.py`).
 - The Onigiri custom node, installed with `scripts/install-comfy.ps1` or copied into `custom_nodes`.
-- The third-party nodes the examples use: **ModelPreviewOverrideKJ** from [ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes), **Label (rgthree)** from [rgthree-comfy](https://github.com/rgthree/rgthree-comfy), and **Lora Loader (LoraManager)** from [ComfyUI-Lora-Manager](https://github.com/willmiao/ComfyUI-Lora-Manager). The graphs also contain a **ModelAttentionBackend** node; bypass or delete it if no installed pack provides it.
+- **Advanced graphs only:** the third-party nodes these examples use: **ModelPreviewOverrideKJ** from [ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes), **Label (rgthree)** from [rgthree-comfy](https://github.com/rgthree/rgthree-comfy), and **Lora Loader (LoraManager)** from [ComfyUI-Lora-Manager](https://github.com/willmiao/ComfyUI-Lora-Manager). The graphs also contain a **ModelAttentionBackend** node; bypass or delete it if no installed pack provides it.
 - The model files listed below. The names come from the authoring machine, so point each loader at whatever you have and check the CLIP is loaded as type `minimax`.
 
 ## The Onigiri node starts empty on purpose
 
-Both examples ship with **snapshot_path blank**. Native H3 conditioning reads the references from the snapshot Onigiri writes, so a fresh copy of either graph will not queue until you either:
+All examples ship with **snapshot_path blank**. Native H3 conditioning reads the references from the snapshot Onigiri writes, so a fresh copy of either graph will not queue until you either:
 
 1. open the editor from the **Onigiri** node (**Open Onigiri ↗**), compose the scene, then **Send to ComfyUI** — that writes `data/snapshots/<id>.json` and fills the node in, or
 2. paste the path of an existing snapshot into `snapshot_path`.
 
-`prompt_override` is filled with a sample prompt so the node shows real content; sending from the editor replaces it. `width`, `height` and `length` follow the canvas you sent. Everything around the guide — loaders, samplers, decode — is a normal H3 graph.
+In the advanced examples, `prompt_override` is filled with a sample prompt so the node shows real content; sending from the editor replaces it. `width`, `height` and `length` follow the canvas you sent. Everything around the guide — loaders, samplers, decode — is a normal H3 graph.
+
+## `Onigiri Starter.json`
+
+Uses the four H3 loaders listed below (UNET, CLIP, video VAE and audio VAE), Onigiri, Onigiri conditioning, native sampling, decoding and SaveVideo. Select your installed files in the loaders; model subfolders may differ. No preview pack, attention override, LoRA or labels are required. Prompt and snapshot are blank until you send a scene. The 30-step Euler/simple settings are a starting point, not a tuned preset. A full render has not been performed for this starter.
 
 ## `Onigiri Minimax H3.json`
 

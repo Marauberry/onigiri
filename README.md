@@ -27,6 +27,39 @@ Onigiri is two halves of one tool: a **ComfyUI custom node** that carries a scen
 | **One-click send** | **Send to ComfyUI** writes an immutable snapshot and hands it to the **Onigiri** node in your graph. Keep your own loaders, samplers and decoders; Onigiri only replaces the conditioning. |
 | **Snapshots and history** | Restoring an earlier version creates a branch instead of overwriting work, and sent snapshots keep the references they were sent with. |
 
+## Quick start (Windows)
+
+Start with **ComfyUI with native MiniMax H3 support**. Onigiri installs its node and Director runtime, not ComfyUI or H3 rendering weights.
+
+1. Install [Git for Windows](https://git-scm.com/downloads/win), then open PowerShell:
+
+   ```powershell
+   git clone https://github.com/Marauberry/onigiri.git
+   cd onigiri
+   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/bootstrap.ps1 -ComfyRoot "D:\ComfyUI"
+   ```
+
+   No Git? Use **Code > Download ZIP**, extract to a permanent folder, open PowerShell there and run the last command. Replace `D:\ComfyUI` with the folder containing `main.py`, `custom_nodes` and `comfy_extras`. For portable installs this is usually `ComfyUI_windows_portable\ComfyUI`, not its parent. Keep the Onigiri folder in place: the node launches the editor from it.
+2. Setup installs missing Node.js/FFmpeg and asks for **NVIDIA CUDA**, **Vulkan (AMD/Intel)** or **CPU** for the Director. Installer prompts may appear. For unattended setup append `-Backend cuda-12.4`, `-Backend vulkan` or `-Backend cpu`. Existing runtime settings are kept unless explicitly changed.
+3. Choose a model route:
+   - **Existing model:** open **Start Onigiri.cmd > Settings** and select the folder containing your Bonsai GGUF and matching `mmproj`.
+   - **Download:** run `powershell -ExecutionPolicy Bypass -File scripts/download-model.ps1 -ModelDirectory "D:\Models\Bonsai" -Variant official`, then select that folder in Settings. Use `-Variant abliterated` for the alternative weights. Allow **7.84 GB** for these files plus additional disk space for the runtime and H3 models.
+4. Restart ComfyUI and load [Onigiri Starter.json](workflows/Onigiri%20Starter.json). Select your H3 model, text encoder, video VAE and audio VAE in the loaders. **Bonsai powers the Director; H3 weights render the video. They are separate downloads.**
+5. In the Onigiri node: **Open editor > create a scene > Send to ComfyUI > queue**. The starter has no snapshot until you send a scene.
+
+No `npm install` or additional Python requirements are needed for Onigiri itself. The starter requires only native ComfyUI nodes and Onigiri. CPU support applies to the Director; H3 rendering has separate hardware requirements.
+
+### Update an existing installation
+
+Close Onigiri and stop ComfyUI. From your original checkout:
+
+```powershell
+git pull --ff-only
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/bootstrap.ps1 -ComfyRoot "D:\ComfyUI"
+```
+
+Restart ComfyUI afterward. Setup updates shipped node files and preserves local configuration and projects. For ZIP installs, extract the updated version over the same app folder and rerun bootstrap. Keep `config.local.json`, `data/`, `runtime/` and your models; do not delete the app folder to update it.
+
 ## Screenshots
 
 ### Start Creating
@@ -112,19 +145,19 @@ If you would rather do it by hand, or you are on a CPU/Vulkan machine:
 
 Use `-Backend cpu` or `-Backend vulkan` for a machine without NVIDIA CUDA, or `-LlamaDirectory` to import a compatible Prism build you already have. Working runtime settings are preserved. Downloads come from the [official Prism release](https://github.com/PrismML-Eng/llama.cpp/releases/tag/prism-b10743-adfffbe), not from generic llama.cpp builds that may lack PQ2 support, and a failed download never activates a partial install.
 
-Once ComfyUI restarts, add **Onigiri** and **Onigiri conditioning** to your graph. The optional third node, **Onigiri 2nd Pass**, takes a guide and changes only its resolution in MP, outputting the same guide plus width and height for a latent upscaler. Two example graphs ship in [`workflows/`](workflows/README.md).
+Once ComfyUI restarts, add **Onigiri** and **Onigiri conditioning** to your graph. The optional third node, **Onigiri 2nd Pass**, takes a guide and changes only its resolution in MP, outputting the same guide plus width and height for a latent upscaler. A minimal starter and two advanced example graphs ship in [`workflows/`](workflows/README.md).
 
 For a two-pass render, connect the width and height from **Onigiri 2nd Pass** to your upscaler's **Target dimensions** inputs with 32-pixel alignment, then feed the new guide back into Onigiri conditioning. Explicit dimensions keep the node and the upscaler on the same area base — LBH's own megapixel mode uses a different one. Onigiri does not upscale an existing latent: send that latent through your upscaler separately. Timing, reference identity and the sent snapshot are preserved. The native contracts are tested; a full LBH/H3 render has not been queued.
 
 ### 2. The editor
 
-Double-click **Start Prompt Helper.cmd**, or run:
+Double-click **Start Onigiri.cmd**, or run:
 
 ```powershell
 npm start
 ```
 
-On first launch the app downloads the pinned Prism llama.cpp Windows CUDA 12.4 runtime and its CUDA libraries, verifies SHA-256 checksums, and serves the editor at **http://127.0.0.1:47831**. A first-run guide walks through model setup, building a scene and sending it to ComfyUI; reopen it from **Settings → Setup guide**.
+If setup has not already run, the launcher downloads the pinned Prism llama.cpp Windows CUDA 12.4 runtime and its CUDA libraries, verifies SHA-256 checksums, and serves the editor at **http://127.0.0.1:47831**. A first-run guide walks through model setup, building a scene and sending it to ComfyUI; reopen it from **Settings → Setup guide**.
 
 ### 3. The model
 
@@ -180,11 +213,27 @@ server.mjs                     local service: projects, snapshots, assets, bridg
 worker.mjs                     llama.cpp jobs: inspection, drafting, arrangement
 public/                        the editor UI
 comfyui_h3_prompt_helper/      the ComfyUI custom node (Python + web extensions)
-workflows/                     two example MiniMax H3 graphs
+workflows/                     starter and advanced MiniMax H3 graphs
 scripts/                       bootstrap, setup, install-comfy, model download
 tests/                         node test suite and the native H3 contract test
 docs/                          the images on this page
 ```
+
+## Troubleshooting
+
+| Problem | Next step |
+| --- | --- |
+| Git is missing | Install Git and reopen PowerShell, or use Download ZIP. |
+| Winget is unavailable | Install [App Installer](https://apps.microsoft.com/detail/9nblggh4nns1), or install Node.js 22+ and the full FFmpeg package manually. Reopen PowerShell. |
+| Node too old / FFprobe missing | Check `node --version`, `ffmpeg -version`, `ffprobe -version`. Upgrade Node to 22+ and install FFmpeg with FFprobe. An older copy earlier on PATH can shadow the new one. |
+| ComfyUI folder rejected | Select the inner folder containing `comfy_extras/nodes_minimax_h3.py`; update ComfyUI if this native H3 module is missing. |
+| Onigiri nodes missing | Rerun bootstrap with the correct ComfyUI folder, restart ComfyUI and check its terminal for import errors. Cloning this entire repo into `custom_nodes` alone is not supported. |
+| Editor does not start | Use `Start Onigiri.cmd`; check `data/server-error.log` and `data/server.log`. Check whether another application occupies port 47831. |
+| Director cannot load | Check the model folder in Settings. Rerun bootstrap with an explicit `-Backend cpu`, `vulkan` or `cuda-12.4` to change runtime. Successful runtime validation does not guarantee sufficient RAM/VRAM to load the model. |
+| Images not understood | Keep the matching `mmproj` beside the GGUF. An ambiguous projector match remains text-only. |
+| Missing models or snapshot | Select installed H3 weights in the workflow loaders, then send a scene from Onigiri before queueing. Bonsai download does not include H3 rendering weights. |
+
+When reporting a bug, include Windows/GPU details, the command and relevant error. Remove private paths, prompts and media from logs before sharing. Clean-machine installation and full rendering still need validation on your hardware.
 
 ## Development
 
@@ -195,7 +244,7 @@ npm test
 The native node contract test uses ComfyUI's own virtual environment:
 
 ```powershell
-& "D:\ComfyUI\.venv\Scripts\python.exe" tests\comfy_contract.py
+& "D:\ComfyUI\.venv\Scripts\python.exe" tests\comfy_contract.py "D:\ComfyUI"
 ```
 
 Worker changes also need a real model smoke test, and UI changes need a browser check. Do not modify ComfyUI core, and do not commit model weights, local configuration or imported media.

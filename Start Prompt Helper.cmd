@@ -1,3 +1,3 @@
 @echo off
-cd /d "%~dp0"
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\start.ps1"
+rem Compatibility launcher for existing shortcuts.
+call "%~dp0Start Onigiri.cmd"

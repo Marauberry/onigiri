@@ -1,0 +1,1143 @@
+{
+  "id": "e3f2b845-8f2c-4b5a-9caf-eac1029d3e7e",
+  "revision": 0,
+  "last_node_id": 162,
+  "last_link_id": 319,
+  "nodes": [
+    {
+      "id": 126,
+      "type": "BasicGuider",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        360,
+        60
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 319
+        },
+        {
+          "localized_name": "conditioning",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 305
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "GUIDER",
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            254
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 123,
+      "type": "KSamplerSelect",
+      "pos": [
+        0,
+        390
+      ],
+      "size": [
+        360,
+        70
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "sampler_name",
+          "name": "sampler_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "sampler_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "SAMPLER",
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            255
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect"
+      },
+      "widgets_values": [
+        "euler"
+      ],
+      "widgets_values_named": {
+        "sampler_name": "euler"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 127,
+      "type": "UNETLoader",
+      "pos": [
+        0,
+        780
+      ],
+      "size": [
+        640,
+        90
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "unet_name",
+          "name": "unet_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "unet_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "weight_dtype",
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "weight_dtype"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            318,
+            319
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "Minimax\\dasiwa_minimax_h3_ref2va_v2_pruned_hybrid_int8_row-wise_convrot_runtime_mixed.safetensors",
+        "weight_dtype": "default"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 128,
+      "type": "CLIPLoader",
+      "pos": [
+        0,
+        1170
+      ],
+      "size": [
+        640,
+        120
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip_name",
+          "name": "clip_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "clip_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "type",
+          "name": "type",
+          "type": "COMBO",
+          "widget": {
+            "name": "type"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "device",
+          "name": "device",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            302
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "Minimax\\qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+        "type": "minimax",
+        "device": "default"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 119,
+      "type": "VAELoader",
+      "pos": [
+        500,
+        0
+      ],
+      "size": [
+        640,
+        70
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            251,
+            303
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_int8_convrot.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "Minimax\\minimax_h3_video_vae_int8_convrot.safetensors"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 120,
+      "type": "VAELoader",
+      "pos": [
+        500,
+        390
+      ],
+      "size": [
+        640,
+        70
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            250,
+            304
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "Minimax\\minimax_h3_audio_vae_fp32.safetensors"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 155,
+      "type": "BasicScheduler",
+      "pos": [
+        500,
+        780
+      ],
+      "size": [
+        360,
+        130
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 318
+        },
+        {
+          "localized_name": "scheduler",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "denoise",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "SIGMAS",
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            313
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler"
+      },
+      "widgets_values": [
+        "simple",
+        30,
+        1
+      ],
+      "widgets_values_named": {
+        "scheduler": "simple",
+        "steps": 8,
+        "denoise": 1
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 122,
+      "type": "VAEDecode",
+      "pos": [
+        500,
+        1170
+      ],
+      "size": [
+        230,
+        60
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "samples",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 280
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 251
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            258
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 121,
+      "type": "VAEDecodeAudio",
+      "pos": [
+        1000,
+        0
+      ],
+      "size": [
+        230,
+        60
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "samples",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 281
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 250
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "AUDIO",
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            259
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecodeAudio"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 125,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        1000,
+        390
+      ],
+      "size": [
+        220,
+        110
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "noise",
+          "name": "noise",
+          "type": "NOISE",
+          "link": 253
+        },
+        {
+          "localized_name": "guider",
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 254
+        },
+        {
+          "localized_name": "sampler",
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 255
+        },
+        {
+          "localized_name": "sigmas",
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 313
+        },
+        {
+          "localized_name": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 306
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "output",
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            280,
+            281
+          ]
+        },
+        {
+          "localized_name": "denoised_output",
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 130,
+      "type": "CreateVideo",
+      "pos": [
+        1000,
+        780
+      ],
+      "size": [
+        270,
+        150
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 258
+        },
+        {
+          "localized_name": "audio",
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 259
+        },
+        {
+          "localized_name": "fps",
+          "name": "fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "fps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "bit_depth",
+          "name": "bit_depth",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "bit_depth"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "color_space",
+          "name": "color_space",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "color_space"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "codec",
+          "name": "codec",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "codec"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "VIDEO",
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            260
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CreateVideo"
+      },
+      "widgets_values": [
+        24,
+        8,
+        "sRGB",
+        "none"
+      ],
+      "widgets_values_named": {
+        "fps": 24,
+        "bit_depth": 8,
+        "color_space": "sRGB",
+        "codec": "none"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 129,
+      "type": "RandomNoise",
+      "pos": [
+        1000,
+        1170
+      ],
+      "size": [
+        360,
+        90
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "noise_seed",
+          "name": "noise_seed",
+          "type": "INT",
+          "widget": {
+            "name": "noise_seed"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "NOISE",
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            253
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise"
+      },
+      "widgets_values": [
+        911664943853695,
+        "randomize"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 911664943853695,
+        "control_after_generate": "randomize"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 152,
+      "type": "H3GuideConditioningV2",
+      "pos": [
+        1500,
+        0
+      ],
+      "size": [
+        220,
+        90
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "guide",
+          "name": "guide",
+          "type": "H3_SCENE_GUIDE",
+          "link": 308
+        },
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 302
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 303
+        },
+        {
+          "localized_name": "audio_vae",
+          "name": "audio_vae",
+          "type": "VAE",
+          "link": 304
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            305
+          ]
+        },
+        {
+          "localized_name": "latent",
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            306
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "H3GuideConditioningV2"
+      },
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 150,
+      "type": "H3SceneGuideV3",
+      "pos": [
+        1500,
+        390
+      ],
+      "size": [
+        730,
+        720
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "snapshot_path",
+          "name": "snapshot_path",
+          "type": "STRING",
+          "widget": {
+            "name": "snapshot_path"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "prompt_override",
+          "name": "prompt_override",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt_override"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "override_canvas",
+          "name": "override_canvas",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "override_canvas"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "length",
+          "name": "length",
+          "type": "INT",
+          "widget": {
+            "name": "length"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "guide",
+          "name": "guide",
+          "type": "H3_SCENE_GUIDE",
+          "links": [
+            308
+          ]
+        },
+        {
+          "localized_name": "width",
+          "name": "width",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "localized_name": "height",
+          "name": "height",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "localized_name": "Length",
+          "name": "Length",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "localized_name": "seconds",
+          "name": "seconds",
+          "type": "FLOAT",
+          "links": []
+        }
+      ],
+      "title": "Onigiri \ud83c\udf59",
+      "properties": {
+        "Node name for S&R": "H3SceneGuideV3"
+      },
+      "widgets_values": [
+        "",
+        "",
+        false,
+        768,
+        768,
+        121
+      ],
+      "widgets_values_named": {
+        "snapshot_path": "",
+        "prompt_override": "subject_definitions:\n<Subject 1> is the anime-style young woman defined by <Picture 1>, with short brown hair and bangs, wearing a white graphic t-shirt and blue jeans with rolled cuffs.\n<Subject 2> is the long orange tabby cat defined by <Picture 1>, held horizontally across <Subject 1>'s body.\n\nsummary:\n[reference generation] <Subject 1> holds <Subject 2> in a grapple pose against a plain white background, then releases the cat into a slow, playful fall while the camera drifts slightly to mimic a human gaze.\n\nretention_analysis:\n<Subject 1> (appears in [Shot 1], [Shot 2]): partially_preserved - retain identity and clothing from <Picture 1>; change the pose from a static grapple to a release action.\n<Subject 2> (appears in [Shot 1], [Shot 2]): partially_preserved - retain identity and color from <Picture 1>; change the pose from being held horizontally to falling slowly.\n\ndetailed_description:\nAnime-style rendering with soft, diffused lighting and a muted blue-amber palette to evoke a quiet, intimate mood.\n[Shot 1] A low-angle medium shot frames <Subject 1> squatting on one knee against a plain white background, holding <Subject 2> horizontally across her body in a grapple pose. <Subject 1>'s short brown hair and bangs catch a subtle warm glow from one side, adding depth to the flat lighting. The camera remains mostly stationary but drifts slightly, mimicking the natural movement of a human gaze. <Subject 2>'s long orange tabby form stretches across the frame, its legs dangling loosely. The scene holds this pose for a moment, emphasizing the cat's length and the woman's grounded stance.\n[Shot 2] At 00:03.000, <Subject 1> slowly lowers her arms, releasing <Subject 2> into a gentle, playful fall. The cat's body arcs slightly as it descends, its legs twitching in a relaxed manner. The camera continues its slight drift, keeping the focus on the interaction between the two subjects. The background remains plain white, with the soft lighting casting a faint shadow beneath <Subject 2> as it nears the ground. <Subject 1> watches the cat with a calm, attentive expression, her rolled-cuff jeans and white graphic t-shirt clearly visible in the soft light. The shot ends with <Subject 2> landing softly, its body still slightly arched, while <Subject 1> holds her pose, observing the cat's final position.\n\noverall_soundscape:\nQuiet room tone with a subtle, soft ambient hum that fades as the cat falls. The only distinct sound is the gentle, muffled thud of <Subject 2> landing on the ground, synchronized with the cat's final position in [Shot 2].\n\nnon_diegetic_music:\nN/A",
+        "override_canvas": true,
+        "width": 448,
+        "height": 448,
+        "length": 124,
+        "Open Onigiri \u2197": null,
+        "scene_card": ""
+      },
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 92,
+      "type": "SaveVideo",
+      "pos": [
+        1500,
+        780
+      ],
+      "size": [
+        250,
+        130
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "link": 260
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "format",
+          "name": "format",
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "widget": {
+            "name": "format"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "codec",
+          "name": "format.codec",
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "widget": {
+            "name": "format.codec"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "encoding",
+          "name": "format.codec.encoding",
+          "shape": 7,
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "widget": {
+            "name": "format.codec.encoding"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveVideo"
+      },
+      "widgets_values": [
+        "Onigiri/Starter",
+        "mp4",
+        "h264",
+        "auto"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "Marau/Onigiri Minimax H3/Minimax_H3",
+        "format": "mp4",
+        "format.codec": "h264",
+        "format.codec.encoding": "auto"
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    }
+  ],
+  "links": [
+    [
+      250,
+      120,
+      0,
+      121,
+      1,
+      "VAE"
+    ],
+    [
+      251,
+      119,
+      0,
+      122,
+      1,
+      "VAE"
+    ],
+    [
+      253,
+      129,
+      0,
+      125,
+      0,
+      "NOISE"
+    ],
+    [
+      254,
+      126,
+      0,
+      125,
+      1,
+      "GUIDER"
+    ],
+    [
+      255,
+      123,
+      0,
+      125,
+      2,
+      "SAMPLER"
+    ],
+    [
+      258,
+      122,
+      0,
+      130,
+      0,
+      "IMAGE"
+    ],
+    [
+      259,
+      121,
+      0,
+      130,
+      1,
+      "AUDIO"
+    ],
+    [
+      260,
+      130,
+      0,
+      92,
+      0,
+      "VIDEO"
+    ],
+    [
+      280,
+      125,
+      0,
+      122,
+      0,
+      "LATENT"
+    ],
+    [
+      281,
+      125,
+      0,
+      121,
+      0,
+      "LATENT"
+    ],
+    [
+      302,
+      128,
+      0,
+      152,
+      1,
+      "CLIP"
+    ],
+    [
+      303,
+      119,
+      0,
+      152,
+      2,
+      "VAE"
+    ],
+    [
+      304,
+      120,
+      0,
+      152,
+      3,
+      "VAE"
+    ],
+    [
+      305,
+      152,
+      0,
+      126,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      306,
+      152,
+      1,
+      125,
+      4,
+      "LATENT"
+    ],
+    [
+      308,
+      150,
+      0,
+      152,
+      0,
+      "H3_SCENE_GUIDE"
+    ],
+    [
+      313,
+      155,
+      0,
+      125,
+      3,
+      "SIGMAS"
+    ],
+    [
+      318,
+      127,
+      0,
+      155,
+      0,
+      "MODEL"
+    ],
+    [
+      319,
+      127,
+      0,
+      126,
+      0,
+      "MODEL"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}
