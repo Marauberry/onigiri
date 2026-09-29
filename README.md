@@ -1,8 +1,95 @@
-# Onigiri
+![Onigiri — a local scene editor and Director chat for MiniMax H3](docs/banner.webp)
 
-A local scene editor and Director chat for MiniMax H3 and ComfyUI. Plain Node.js, no accounts or hosted service. Your scenes, references, conversation history and snapshots stay on your computer.
+<div align="center">
 
-## Quick Windows setup
+**Turn references and a conversation into the six-section prompt that native MiniMax H3 Ref2VA expects — then send it straight to your ComfyUI graph.**
+
+![Platform](https://img.shields.io/badge/platform-Windows-4b5563?style=flat-square)
+![ComfyUI](https://img.shields.io/badge/ComfyUI-custom%20node-3f5159?style=flat-square)
+![Node](https://img.shields.io/badge/Node.js-22%2B-456650?style=flat-square)
+![Local inference](https://img.shields.io/badge/inference-local%20llama.cpp-50674f?style=flat-square)
+![No accounts](https://img.shields.io/badge/accounts-none-292d29?style=flat-square)
+
+</div>
+
+Onigiri is two halves of one tool: a **ComfyUI custom node** that carries a scene into native H3 conditioning, and a **local editor** that builds that scene with you. Everything runs on your machine — plain Node.js, no accounts, no hosted service, no database. Your scenes, references, conversation history and snapshots stay in your own folder, and model weights are never part of this repository.
+
+---
+
+## What it does
+
+| Feature | What it gives you |
+| --- | --- |
+| **Director chat** | Describe the scene in your own words and talk it through with a local model. It asks about ambiguous references instead of guessing, and older turns are compacted so long conversations stay coherent. |
+| **References that mean something** | Drop images, video or audio. A picture can supply a subject's appearance while a video supplies motion; video is sampled into frames for inspection, and trims can be cut, sequenced and retimed. |
+| **A prompt you can read** | Everything is assembled into the six native H3 sections — `subject_definitions`, `summary`, `retention_analysis`, `detailed_description`, `overall_soundscape`, `non_diegetic_music` — with live checks for missing references, dialogue syntax and canvas contracts. |
+| **One-click send** | **Send to ComfyUI** writes an immutable snapshot and hands it to the **Onigiri** node in your graph. Keep your own loaders, samplers and decoders; Onigiri only replaces the conditioning. |
+| **Snapshots and history** | Restoring an earlier version creates a branch instead of overwriting work, and sent snapshots keep the references they were sent with. |
+
+## Screenshots
+
+### Start Creating
+
+One composer, your whole idea. Files dropped here wait as pending references until you press **Start creating**, so nothing is written to a scene until you mean it.
+
+![Start Creating — the landing composer](docs/start-creating.png)
+
+### The scene, in conversation
+
+The Director on the right, the work on the left: references and subjects, the compiled prompt, and the checks that stand between you and a queue.
+
+![Editor with references, subjects, prompt sections and the Director panel](docs/scene-prompt.png)
+
+### Draft board
+
+An arrangeable board of intent, references, subjects, notes and the compiled prompt. Drag cards, add notes, or press **Fit all** — the arrangement belongs to the scene.
+
+![Draft board with reference, subject and note cards](docs/draft-board.png)
+
+### Canvas and duration
+
+Official H3 768p short edge, megapixel presets, standard heights through 1080p, or an exact custom size on the 32-pixel grid — with duration in frames and seconds.
+
+![Scene settings with the resolution picker and duration slider](docs/canvas-and-duration.png)
+
+### Project gallery
+
+Folders with covers, sorting, search, multi-select and batch actions. Trash is a real grid you can restore from.
+
+![Project gallery with folder covers](docs/gallery.png)
+
+![A folder opened in the gallery, showing scene cards](docs/gallery-folder.png)
+
+### History
+
+Every save is a revision, every send is a snapshot. Restoring an earlier version starts a named branch, and the dialog stays open so you can see where you are.
+
+![History dialog with revisions, snapshots and branch restore](docs/history.png)
+
+### Light and dark
+
+The whole editor follows the system theme, or you can pin one.
+
+![The same scene in the light theme](docs/scene-prompt-light.png)
+
+> The screenshots come from a demo workspace built for this page — its reference plates are abstract lighting gradients, not your media.
+
+## Requirements
+
+| Requirement | Notes |
+| --- | --- |
+| OS | Windows (the setup scripts are PowerShell) |
+| Node.js | 22 or newer — there are no npm dependencies to install |
+| FFmpeg | `ffmpeg` and `ffprobe` on `PATH`, or a path you provide |
+| ComfyUI | a version with **native MiniMax H3 support** (`comfy_extras/nodes_minimax_h3.py`) |
+| Model | a Bonsai 2 Q2/PQ2 GGUF and its matching `mmproj` projector |
+| GPU | optional — the runtime ships as CUDA 12.4, CPU or Vulkan |
+
+## Setup
+
+### 1. The ComfyUI custom node
+
+The node is the reason the app exists, so start here. From a clone of this repository:
 
 ```powershell
 git clone https://github.com/Marauberry/onigiri.git
@@ -10,69 +97,112 @@ cd onigiri
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap.ps1 -ComfyRoot "D:\ComfyUI"
 ```
 
-Bootstrap installs missing Node.js and FFmpeg through Windows Package Manager, sets up the pinned llama.cpp runtime, and copies the custom nodes into ComfyUI. Installer prompts may appear. Omit `-ComfyRoot` for the standalone app. Restart ComfyUI after installation. No npm dependencies are needed.
+`bootstrap.ps1` is the short path: it installs missing Node.js and FFmpeg through Windows Package Manager, sets up the pinned llama.cpp runtime, and copies the custom node into your ComfyUI. Installer prompts may appear. Then **restart ComfyUI**.
 
-## Existing dependencies / manual setup
+If you would rather do it by hand, or you are on a CPU/Vulkan machine:
 
-Install Node.js 22+ and FFmpeg (including ffprobe). Double-click **Start Prompt Helper.cmd**. On first launch, setup downloads the pinned Prism llama.cpp Windows CUDA 12.4 runtime and its CUDA libraries, verifies SHA-256 checksums, then starts the app at http://127.0.0.1:47831.
+```powershell
+# Node, FFmpeg and the pinned Prism llama.cpp runtime
+.\scripts\setup.ps1 -ModelDirectory 'D:\Models\Bonsai' -FfmpegExecutable 'D:\FFmpeg\bin\ffmpeg.exe' -Backend cuda-12.4
 
-The first-run guide walks through model setup, scene creation and sending to ComfyUI. Reopen it from **Settings → Setup guide**.
+# Copy the node into ComfyUI and write its helper_config.json
+.\scripts\install-comfy.ps1 -ComfyRoot 'D:\ComfyUI'
+```
 
-You supply your Bonsai Q2/PQ2 GGUF and matching mmproj. Open **Settings**, paste the model folder or full GGUF path, then save. Quoted paths are accepted. A single mmproj beside the model is selected automatically; confirm it is the correct projector. Keep just the matching projector in that folder; ambiguous matches remain text-only. Weights are never included in Git. You may instead use **Settings → Optional model download**: choose a folder and Official or Hikari07jp Abliterated Bonsai PQ2. Both use the official Prism Q8 projector. Downloads are pinned to known revisions, SHA-256 verified, resumable, and do not replace a conflicting existing file. Expect about 7.84 GB.
+Use `-Backend cpu` or `-Backend vulkan` for a machine without NVIDIA CUDA, or `-LlamaDirectory` to import a compatible Prism build you already have. Working runtime settings are preserved. Downloads come from the [official Prism release](https://github.com/PrismML-Eng/llama.cpp/releases/tag/prism-b10743-adfffbe), not from generic llama.cpp builds that may lack PQ2 support, and a failed download never activates a partial install.
 
-Model sources: [Prism Bonsai 2](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf) and [Hikari07jp Bonsai 2 Abliterated](https://huggingface.co/Hikari07jp/Ternary-Bonsai-2-27B-Abliterated-GGUF). Optional command-line download:
+Once ComfyUI restarts, add **Onigiri** and **Onigiri conditioning** to your graph. The optional third node, **Onigiri 2nd Pass**, takes a guide and changes only its resolution in MP, outputting the same guide plus width and height for a latent upscaler. Two example graphs ship in [`workflows/`](workflows/README.md).
+
+For a two-pass render, connect the width and height from **Onigiri 2nd Pass** to your upscaler's **Target dimensions** inputs with 32-pixel alignment, then feed the new guide back into Onigiri conditioning. Explicit dimensions keep the node and the upscaler on the same area base — LBH's own megapixel mode uses a different one. Onigiri does not upscale an existing latent: send that latent through your upscaler separately. Timing, reference identity and the sent snapshot are preserved. The native contracts are tested; a full LBH/H3 render has not been queued.
+
+### 2. The editor
+
+Double-click **Start Prompt Helper.cmd**, or run:
+
+```powershell
+npm start
+```
+
+On first launch the app downloads the pinned Prism llama.cpp Windows CUDA 12.4 runtime and its CUDA libraries, verifies SHA-256 checksums, and serves the editor at **http://127.0.0.1:47831**. A first-run guide walks through model setup, building a scene and sending it to ComfyUI; reopen it from **Settings → Setup guide**.
+
+### 3. The model
+
+You supply a Bonsai 2 GGUF and a matching projector. Open **Settings**, paste the model folder or the full `.gguf` path, and save — quoted paths are accepted. A single `mmproj` beside the model is picked up automatically; keep just the matching projector in that folder, because an ambiguous match stays text-only.
 
 ```powershell
 .\scripts\download-model.ps1 -ModelDirectory "D:\Models\Bonsai" -Variant official
 ```
 
-Use `-Variant abliterated` for the alternative weights, or pass `-DownloadModel official -ModelDirectory "D:\Models\Bonsai"` to bootstrap. An existing folder can be scanned without downloading anything.
+Use `-Variant abliterated` for the alternative weights, or pass `-DownloadModel official -ModelDirectory "D:\Models\Bonsai"` to bootstrap. Downloads are pinned to known revisions, SHA-256 verified and resumable, and they never replace a conflicting existing file. Expect about **7.84 GB**.
 
-For explicit setup, including CPU or Vulkan systems:
+- [Prism Bonsai 2](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf)
+- [Hikari07jp Bonsai 2 Abliterated](https://huggingface.co/Hikari07jp/Ternary-Bonsai-2-27B-Abliterated-GGUF)
 
-```powershell
-.\scripts\setup.ps1 -ModelDirectory 'D:\Models\Bonsai' -FfmpegExecutable 'D:\FFmpeg\bin\ffmpeg.exe' -Backend cuda-12.4
+Weights are never included in Git, and neither is your configuration.
+
+## How the node and the editor fit together
+
+```mermaid
+flowchart LR
+  E["Onigiri editor<br/>127.0.0.1:47831"] -- "Send to ComfyUI<br/>immutable snapshot" --> G
+  G -- "Open editor ↗" --> E
+  subgraph GRAPH["Your ComfyUI graph"]
+    L["Your loaders<br/>UNET · CLIP · VAE · audio VAE"] --> C
+    G["Onigiri<br/>scene guide"] --> C["Onigiri conditioning"]
+    C --> S["Your sampler, decode<br/>and SaveVideo"]
+  end
 ```
 
-Use `-Backend cpu` or `-Backend vulkan` for a fresh installation without NVIDIA CUDA. Existing working runtime settings are preserved. `-LlamaDirectory` imports a locally supplied compatible Prism build. Downloads come from the [official Prism release](https://github.com/PrismML-Eng/llama.cpp/releases/tag/prism-b10743-adfffbe), not generic llama.cpp builds that may lack PQ2 support. Download failures do not activate a partial installation.
+The guide node holds the canvas, the timing, the reference list and the prompt. The conditioning node reads the snapshot from disk, turns those references into native H3 conditioning, and passes them to your sampler. ComfyUI core is never modified, and the app never rewrites your saved workflow.
 
-## ComfyUI
-
-```powershell
-.\scripts\install-comfy.ps1 -ComfyRoot 'D:\ComfyUI'
-```
-
-Use a ComfyUI version with native MiniMax H3 support. Restart ComfyUI, then add **Onigiri** and **Onigiri conditioning**. The optional third node, **Onigiri 2nd Pass**, accepts a guide and changes only its resolution in MP; it outputs the new guide plus width and height. Keep your existing H3 loaders, sampling and decoding workflow. Open editor → Send to ComfyUI → queue. Sending creates an immutable snapshot; later Director edits affect the working scene, and you send again to use them in the next generation. Two example graphs ship in [`workflows/`](workflows/README.md). ComfyUI core is never modified.
+**Open editor → Send to ComfyUI → queue.** Sending creates an immutable snapshot; later Director edits change the working scene, and you send again to use them in the next generation.
 
 ## Creating a scene
 
-- Automatic: upload references, discuss the intent with Director, then **Arrange everything** to update the Prompt tab. A picture can supply appearance while a video supplies motion for the same subject. Ambiguous assignments should be clarified before arrangement.
-- Manual: use Draft for notes and reference connections. In Prompt, **Insert structure** creates empty headings; drag subjects and references from the asset sidebar and write the content.
-- Director keeps the full chat locally. Older turns are compacted when needed; recent turns remain verbatim. Later client corrections override older choices. Compact memory is invalidated when its source turns change. Suggestions are not approved decisions.
-- Each local model request runs sequentially. Reference observations are reused until the source, trim or model changes, or you choose Reinspect. The runtime unloads after each request. No parallel inference or persistent GPU allocation is introduced.
+**Automatic.** Upload references, discuss the intent with the Director, then **Arrange everything** to update the Prompt tab. A picture can supply appearance while a video supplies motion for the same subject, and ambiguous assignments are clarified before arranging.
 
-Video inspection samples frames and does not hear audio. Prompt checks validate structure and reference integrity, not rendered quality. Review generated text before sending. There is no AnimaDex integration; upload reference files directly.
+**Manual.** Use Draft for notes and reference connections. In Prompt, **Insert structure** creates empty headings; drag subjects and references from the asset sidebar and write the content yourself.
 
-## Development and publishing
+Both routes end in the same place: a prompt you have read, on a canvas you chose, that the node can send.
 
-Run `npm test`. Worker changes also require a real model smoke test. Native node contract tests use ComfyUI's `.venv` Python. UI changes require browser inspection.
+## Workspace details
 
-`config.local.json`, `runtime/`, `data/`, and `test-results/` are gitignored. Do not publish model weights, local paths/configuration, imported media or private scenes. The repository contains app code and setup instructions, not a preconfigured personal installation.
+- **Storage** — `config.local.json`, `data/`, `runtime/` and `test-results/` stay out of Git. The editor binds to loopback only, and you export a portable scene package when you actually want to share media and scenes. Keep the app's project storage available while saved ComfyUI workflows still refer to its local snapshots.
+- **Inference** — one local request at a time, then the runtime unloads. Reference observations are reused until the source, trim or model changes, or you press **Reinspect**. There is no parallel inference and no persistent GPU allocation.
+- **Inspection** — video inspection samples frames and does not hear audio. Prompt checks validate structure and reference integrity, not rendered quality.
+- **Browsing** — projects, references and outputs are browsable in the app; recent ComfyUI generations and the output-folder tree open in a built-in browser, and you can point it at another install's output folder.
 
-The helper binds to loopback only. Keep its project storage available while saved ComfyUI workflows refer to local snapshots. Export portable scene packages when sharing media and scenes intentionally.
+## Repository layout
 
-History shows the active branch and revision. Restoring a revision or snapshot creates a named branch and retains the previous state. Later edits remain on the new branch, and existing sent snapshots stay immutable. The history dialog stays open after restoration so you can see where you are.
+```
+server.mjs                     local service: projects, snapshots, assets, bridge
+worker.mjs                     llama.cpp jobs: inspection, drafting, arrangement
+public/                        the editor UI
+comfyui_h3_prompt_helper/      the ComfyUI custom node (Python + web extensions)
+workflows/                     two example MiniMax H3 graphs
+scripts/                       bootstrap, setup, install-comfy, model download
+tests/                         node test suite and the native H3 contract test
+docs/                          the images on this page
+```
 
-### Resolution and LBH upscaling
+## Development
 
-The canvas menu includes **Official H3, 768p short edge**, MP presets through 2 MP, standard heights through 1080p, and Custom resolution. Enter width and height as multiples of 32, up to 2048 per side, then Apply. MP is estimated from actual dimensions for custom sizes.
+```powershell
+npm test
+```
 
-For LBH, connect the width and height from Onigiri 2nd Pass to the upscaler’s **Target dimensions** inputs and use 32-pixel alignment. Connect the resulting guide to Onigiri conditioning. LBH’s own megapixel mode uses a different area base; explicit dimensions keep both paths aligned. This node does not upscale an existing latent: feed that latent through LBH separately. Timing, reference identity and the sent snapshot are preserved. Native contracts were tested; a full LBH/H3 render was not queued.
+The native node contract test uses ComfyUI's own virtual environment:
 
-### Workspace
+```powershell
+& "D:\ComfyUI\.venv\Scripts\python.exe" tests\comfy_contract.py
+```
 
-Settings contains model setup, optional downloads, performance, setup guide, appearance and project storage. Drag image/video/audio files or a local ComfyUI preview onto either chat composer. An identical current reference is reused by file content; an edited crop/grid remains a different reference. Mention chips explain which sources are linked.
+Worker changes also need a real model smoke test, and UI changes need a browser check. Do not modify ComfyUI core, and do not commit model weights, local configuration or imported media.
 
-Project Gallery keeps its title and filters fixed while the cards scroll. Folder covers are automatic or selected by right-clicking a project inside the folder. Sidebar ordering uses creation date and folder collapse state persists. Trash opens as a grid; Empty Trash asks for confirmation.
+## Limits
 
-Prompt section headings are recommendations: a nonempty manual prompt can be sent without them. Missing reference links and invalid native media/dimension contracts still need fixing. History highlights additions in green and removals in red; each automatic arrangement is tied to its client message.
+Onigiri drafts prompts and validates their structure. It does not promise film-quality results from a text contract, it does not render the video for you, and it does not hear audio. The final render is still your call in ComfyUI. There is no AnimaDex integration — upload reference files directly.
+
+## License
+
+No license has been chosen yet, so the code is currently all rights reserved. If you want to build on it, open an issue and ask — adding a proper `LICENSE` is a deliberate step, not an oversight.
