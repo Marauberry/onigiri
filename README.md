@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**Turn references and a conversation into the six-section prompt that native MiniMax H3 Ref2VA expects — then send it straight to your ComfyUI graph.**
+**Turn references and a conversation into the six-section prompt that native MiniMax H3 Ref2VA — then send it straight to your ComfyUI run.**
 
 ![Platform](https://img.shields.io/badge/platform-Windows-4b5563?style=flat-square)
 ![ComfyUI](https://img.shields.io/badge/ComfyUI-custom%20node-3f5159?style=flat-square)
@@ -13,7 +13,7 @@
 
 </div>
 
-Onigiri is two halves of one tool: a **ComfyUI custom node** that carries a scene into native H3 conditioning, and a **local editor** that builds that scene with you. Everything runs on your machine — plain Node.js, no accounts, no hosted service, no database. Your scenes, references, conversation history and snapshots stay in your own folder, and model weights are never part of this repository.
+Definitely not for the gooners (maybe 😐). Onigiri is two halves of one tool: a **ComfyUI custom node** that carries a scene into native H3 conditioning, and a **local editor** program that builds that scene with you. Everything runs on your machine — plain Node.js, no accounts, no hosted service, no database. Your scenes, references, conversation history and snapshots stay in your own folder, and model weights are never part of this repository.
 
 ---
 
