@@ -23,7 +23,7 @@ Definitely not for the gooners (maybe 😐). Onigiri is two halves of one tool: 
 | --- | --- |
 | **Director chat** | Based on official minimax H3 skill + community helps to perfect it. Describe the scene in your own words and talk it through with a local model. It asks about ambiguous references instead of guessing, and older turns are compacted so long conversations stay coherent. |
 | **References Manager for MMH3 Ref2va** | Drop images, video or audio. A picture can supply a subject's appearance while a video supplies motion; video is sampled into frames for inspection, and trims can be cut, sequenced and retimed. |
-| **A prompt you can read** | Everything is assembled into the six native H3 sections — `subject_definitions`, `summary`, `retention_analysis`, `detailed_description`, `overall_soundscape`, `non_diegetic_music` — with live checks for missing references, dialogue syntax and canvas contracts. |
+| **Better Prompt Output** | Everything is assembled automatically based on Minimax H3 Official guide + A review agent to check everything quick — `subject_definitions`, `summary`, `retention_analysis`, `detailed_description`, `overall_soundscape`, `non_diegetic_music` — with live checks for missing references, dialogue syntax and canvas contracts. |
 | **One-click send** | **Send to ComfyUI** writes an immutable snapshot and hands it to the **Onigiri** node in your graph. Keep your own loaders, samplers and decoders; Onigiri only replaces the conditioning. |
 | **Snapshots and history** | Restoring an earlier version creates a branch instead of overwriting work, and sent snapshots keep the references they were sent with. |
 
