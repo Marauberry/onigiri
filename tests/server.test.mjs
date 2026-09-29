@@ -78,3 +78,31 @@ test('local service persists snapshots, isolates destinations, and rejects stale
   assert.equal((await send('/api/snapshots',attack)).status,400);
 });
 
+test('folder rename carries nested folders, covers and pins, and can unfile them',async t=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'h3-rename-'));
+  const port=47849,base=`http://127.0.0.1:${port}`;
+  const child=spawn(process.execPath,['server.mjs'],{env:{...process.env,H3_PORT:String(port),H3_DATA_DIR:dir},stdio:['ignore','pipe','pipe'],windowsHide:true});
+  t.after(()=>child.kill());
+  await new Promise((resolve,reject)=>{child.stdout.once('data',resolve);child.once('error',reject);child.once('exit',c=>reject(new Error('Server exited '+c)));});
+  const status=await(await fetch(base+'/api/status')).json();
+  const send=(route,data)=>fetch(base+route,{method:'POST',headers:{'Content-Type':'application/json','X-H3-Token':status.csrf},body:JSON.stringify(data)});
+  const folders=async()=>Object.fromEntries((await(await fetch(base+'/api/projects')).json()).map(x=>[x.id,x.folder]));
+  const parent=await(await send('/api/projects',{folder:'Reels'})).json();
+  const nested=await(await send('/api/projects',{folder:'Reels/sub'})).json();
+  const prefs=await(await fetch(base+'/api/dashboard')).json();
+  await send('/api/dashboard',{...prefs,homeFolders:['Reels'],folderCovers:{Reels:parent.id},trashFolders:['Reels/sub']});
+  const renamed=await(await send('/api/folder/rename',{from:'Reels',to:'Films'})).json();
+  assert.equal(renamed.changed,2);
+  assert.deepEqual(await folders(),{[parent.id]:'Films',[nested.id]:'Films/sub'});
+  const after=await(await fetch(base+'/api/dashboard')).json();
+  assert.deepEqual(after.homeFolders,['Films']);
+  assert.deepEqual(Object.keys(after.folderCovers),['Films']);
+  assert.deepEqual(after.trashFolders,['Films/sub']);
+  // An empty name unfiles the folder and its children instead of leaving them under "Films/".
+  assert.equal((await(await send('/api/folder/rename',{from:'Films',to:''})).json()).changed,2);
+  assert.deepEqual(await folders(),{[parent.id]:'',[nested.id]:'sub'});
+  assert.deepEqual((await(await fetch(base+'/api/dashboard')).json()).homeFolders,[]);
+  assert.equal((await send('/api/folder/rename',{from:'',to:'x'})).status,400);
+  assert.equal((await send('/api/folder/rename',{from:'sub',to:'bad\nname'})).status,400);
+});
+

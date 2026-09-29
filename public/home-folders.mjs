@@ -1,7 +1,7 @@
 import {askDialog} from './dialogs.mjs';
 import {contextMenu} from './editor-tools.mjs';
 
-export function homeFoldersView(host,{folders,projects,folderCovers={},onChange,onOpen,onMove,onError,parent='',canUnpin=true,onUnpin,onTrash,onPin,addHost=null}){
+export function homeFoldersView(host,{folders,projects,folderCovers={},onChange,onOpen,onMove,onError,parent='',canUnpin=true,onUnpin,onTrash,onPin,onRename,addHost=null}){
   host.replaceChildren();
   addHost?.replaceChildren();
   const heading=document.createElement('div');heading.className='section-heading';
@@ -18,7 +18,7 @@ export function homeFoldersView(host,{folders,projects,folderCovers={},onChange,
     const label=document.createElement('strong');label.textContent=name;
     const count=document.createElement('small');const total=projects.filter(p=>p.folder===name&&!p.isTemplate).length;count.textContent=total+' '+(total===1?'scene':'scenes');
     card.append(icon,label,count);card.onclick=()=>onOpen(name);
-    card.oncontextmenu=e=>contextMenu(e,[{label:'Open folder',run:()=>onOpen(name)},...(onPin?[{label:'Show on Home',run:()=>onPin(name)}]:[]),...(onTrash?[{label:'Move folder to Trash',run:()=>onTrash(name)}]:[]),...(canUnpin?[{label:'Remove from Home',run:()=>onUnpin?onUnpin(name):onChange(folders.filter(f=>f!==name))}]:[])],onError);
+    card.oncontextmenu=e=>contextMenu(e,[...(onRename?[{label:'Rename folder…',run:()=>onRename(name)}]:[]),{label:'Open folder',run:()=>onOpen(name)},...(onPin?[{label:'Show on Home',run:()=>onPin(name)}]:[]),...(onTrash?[{label:'Move folder to Trash',run:()=>onTrash(name)}]:[]),...(canUnpin?[{label:'Remove from Home',run:()=>onUnpin?onUnpin(name):onChange(folders.filter(f=>f!==name))}]:[])],onError);
     card.ondragover=e=>{if(e.dataTransfer.types.includes('application/x-h3-projects')){e.preventDefault();e.stopPropagation();card.classList.add('drop-target');}};
     card.ondragleave=()=>card.classList.remove('drop-target');
     card.ondrop=e=>{const raw=e.dataTransfer.getData('application/x-h3-projects');if(!raw)return;e.preventDefault();e.stopPropagation();card.classList.remove('drop-target');try{const ids=JSON.parse(raw);if(Array.isArray(ids)&&ids.every(x=>typeof x==='string'))Promise.resolve(onMove(ids,name)).catch(onError);}catch{onError(Error('Could not read the dragged projects.'));}};

@@ -491,6 +491,34 @@ export const server=http.createServer(async(req,res)=>{
       });}
       return json(res,{error:'Method not supported.'},405);
     }
+    if(p==='/api/folder/rename'&&method==='POST'){
+      const request=await body(req);
+      const from=typeof request.from==='string'?request.from.trim():'',to=typeof request.to==='string'?request.to.trim():'';
+      if(!from)throw Error('Choose the folder to rename.');
+      if(to.length>160||/[\x00-\x1f]/.test(to))throw Error('Invalid folder name.');
+      let changed=0;
+      if(from!==to){
+        // Renaming a folder also renames the folders nested inside it, so a parent rename never orphans
+        // its children. Renaming to an empty name files everything under Unfiled, children included.
+        const renamed=value=>{const text=String(value||'');if(text===from)return to;if(text.startsWith(from+'/'))return to?to+text.slice(from.length):text.slice(from.length+1);return text;};
+        for(const file of (await readdir(path.join(DATA,'projects'))).filter(f=>f.endsWith('.json'))){
+          const target=path.join(DATA,'projects',file),document=JSON.parse(await readFile(target,'utf8'));
+          const next=renamed(document.folder||'');
+          if(next===(document.folder||''))continue;
+          document.folder=next;document.updated=new Date().toISOString();
+          await atomic(target,document);changed++;
+        }
+        const dashboardFile=path.join(DATA,'dashboard.json');
+        let dashboard={revision:0,homeFolders:[]};
+        try{dashboard=JSON.parse(await readFile(dashboardFile,'utf8'));}catch(error){if(error.code!=='ENOENT')throw error;}
+        const swap=list=>[...new Set((Array.isArray(list)?list:[]).map(renamed))];
+        const homeFolders=normalizeHomeFolders([...new Set(swap(dashboard.homeFolders))].filter(Boolean));
+        const folders=normalizeHomeFolders([...new Set([...swap(dashboard.folders||dashboard.homeFolders||[]),...homeFolders])].filter(Boolean));
+        const folderCovers={};for(const [key,value] of Object.entries(dashboard.folderCovers||{})){const next=renamed(key);if(next)folderCovers[next]=value;}
+        await atomic(dashboardFile,{...dashboard,revision:(dashboard.revision||0)+1,homeFolders,folders,folderCovers,trashFolders:swap(dashboard.trashFolders)});
+      }
+      return json(res,{changed,folder:to});
+    }
     if (p === '/api/projects' && method === 'GET') {
 
       const versions=await snapshotVersions();

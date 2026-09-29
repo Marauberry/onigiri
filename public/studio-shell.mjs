@@ -3,7 +3,7 @@
 import {makeSortable,readSidebarOrder,writeSidebarOrder,applySidebarOrder,orderKey,SIDEBAR_ORDER_KEYS} from './sidebar-gestures.mjs';
 import {referenceMap} from './domain.mjs';
 
-export function studioShell({getProject,api,save,loadProject,createScene,showDashboard,showDraft,restoreView,openDirector,changed,toast,isBusy,session,projectContext,chatDrop,uploadAsset,renderReferences,openReferenceBrowser,addDroppedMedia}){
+export function studioShell({getProject,api,save,loadProject,createScene,showDashboard,showDraft,restoreView,openDirector,changed,toast,isBusy,session,projectContext,chatDrop,uploadAsset,renderReferences,openReferenceBrowser,addDroppedMedia,renameFolder,openFolder}){
  const $=id=>document.getElementById(id),workspace=document.querySelector('.workspace'),main=workspace.querySelector('main'),inspector=document.querySelector('.inspector'),library=document.querySelector('.library');
  const nav=document.createElement('aside');nav.className='studio-nav';nav.innerHTML='<div class="studio-wordmark"><img src="/onigiri.svg" alt=""><b>Onigiri</b><button data-collapse aria-label="Collapse sidebar" title="Collapse sidebar">◧</button></div><nav aria-label="Studio navigation"><button data-route="start" aria-label="Start Creating" title="Start Creating"><span class="nav-icon">＋</span><span class="nav-label">Start Creating</span></button><button data-route="gallery" aria-label="Project Gallery" title="Project Gallery"><span class="nav-icon">▧</span><span class="nav-label">Project Gallery</span></button></nav><div class="nav-projects"><p class="eyebrow">PROJECTS</p><div data-tree></div></div><footer>● Local workspace</footer>';workspace.prepend(nav);const collapse=nav.querySelector('[data-collapse]');const setCollapsed=value=>{workspace.classList.toggle('sidebar-collapsed',value);document.body.classList.toggle('rail-collapsed',value);collapse.setAttribute('aria-label',value?'Expand sidebar':'Collapse sidebar');collapse.title=value?'Expand sidebar':'Collapse sidebar';collapse.setAttribute('aria-expanded',String(!value));localStorage.setItem('onigiri-sidebar-collapsed',String(value));};setCollapsed(localStorage.getItem('onigiri-sidebar-collapsed')==='true');collapse.onclick=()=>setCollapsed(!workspace.classList.contains('sidebar-collapsed'));
  // Minimised rail: the collapse control disappears and the logo itself reopens the sidebar.
@@ -179,12 +179,17 @@ export function studioShell({getProject,api,save,loadProject,createScene,showDas
   }catch(error){toast(error.message);}
  }
  const FOLDER_COLORS=['rose','peach','butter','mint','sky','lilac','blush','stone'];
- let folderColors=(()=>{try{const value=JSON.parse(localStorage.getItem('onigiri-folder-colors')||'{}');return value&&typeof value==='object'?value:{};}catch{return {};}})();
- const saveFolderColors=()=>{try{localStorage.setItem('onigiri-folder-colors',JSON.stringify(folderColors));}catch{}};
+ const readFolderColors=()=>{try{const value=JSON.parse(localStorage.getItem('onigiri-folder-colors')||'{}');return value&&typeof value==='object'?value:{};}catch{return {};}};
+ const saveFolderColors=value=>{try{localStorage.setItem('onigiri-folder-colors',JSON.stringify(value));}catch{}};
  function folderColorMenu(event,name){
   document.querySelector('.folder-colors')?.remove();
   const panel=document.createElement('div');panel.className='folder-colors';panel.setAttribute('role','menu');
   const title=document.createElement('small');title.textContent=name;panel.append(title);
+  const rename=document.createElement('button');rename.type='button';rename.className='folder-colors-rename';rename.textContent='Rename folder…';
+  rename.onclick=()=>{close();renameFolder?.(name);};
+  const open=document.createElement('button');open.type='button';open.className='folder-colors-open';open.textContent='Open in gallery';
+  open.onclick=()=>{close();openFolder?.(name);};
+  panel.append(rename,open);
   const grid=document.createElement('div');grid.className='folder-color-grid';
   const close=()=>{panel.remove();document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',onKey);};
   const outside=event2=>{if(!panel.contains(event2.target))close();};
@@ -192,11 +197,11 @@ export function studioShell({getProject,api,save,loadProject,createScene,showDas
   for(const key of FOLDER_COLORS){
    const swatch=document.createElement('button');swatch.type='button';swatch.className='folder-color';swatch.title=key;swatch.setAttribute('aria-label',name+' '+key);
    swatch.style.setProperty('--swatch','var(--folder-pastel-'+key+')');
-   swatch.setAttribute('aria-checked',String(folderColors[name]===key));
-   swatch.onclick=()=>{folderColors[name]=key;saveFolderColors();close();refreshProjects();};
+   swatch.setAttribute('aria-checked',String(readFolderColors()[name]===key));
+   swatch.onclick=()=>{const next=readFolderColors();next[name]=key;saveFolderColors(next);close();refreshProjects();};
    grid.append(swatch);
   }
-  const clear=document.createElement('button');clear.type='button';clear.className='quiet';clear.textContent='No colour';clear.onclick=()=>{delete folderColors[name];saveFolderColors();close();refreshProjects();};
+  const clear=document.createElement('button');clear.type='button';clear.className='quiet';clear.textContent='No colour';clear.onclick=()=>{const next=readFolderColors();delete next[name];saveFolderColors(next);close();refreshProjects();};
   panel.append(grid,clear);document.body.append(panel);
   const rect=panel.getBoundingClientRect();
   panel.style.left=Math.max(8,Math.min(event.clientX,innerWidth-rect.width-8))+'px';
@@ -229,7 +234,7 @@ export function studioShell({getProject,api,save,loadProject,createScene,showDas
    const initial=document.createElement('span');initial.className='nav-group-initial';initial.textContent=(folderName.trim()[0]||'?').toUpperCase();
    const folderLabel=document.createElement('span');folderLabel.className='nav-group-name';folderLabel.textContent=folderName;
    summary.append(initial,folderLabel);
-   const color=folderColors[folderName];
+   const color=readFolderColors()[folderName];
    if(color){summary.style.setProperty('--folder-color','var(--folder-pastel-'+color+')');summary.dataset.folderColor=color;summary.classList.add('has-color');}
    summary.title=folderName+' · Right-click to set a colour';
    summary.oncontextmenu=event=>{event.preventDefault();event.stopPropagation();folderColorMenu(event,folderName);};
@@ -237,7 +242,7 @@ export function studioShell({getProject,api,save,loadProject,createScene,showDas
    const list=document.createElement('div');list.className='nav-group-list';group.append(list);
    for(const id of orderIn(folder)){
     const p=base.find(x=>x.id===id);if(!p)continue;
-    const b=document.createElement('button');b.dataset.project=p.id;b.dataset.sortKey=p.id;b.oncontextmenu=e=>projectContext(e,p.id);const thumb=document.createElement('span');thumb.className='nav-thumbnail';if(p.coverAssetId){const img=document.createElement('img');img.src='/api/asset/'+encodeURIComponent(p.coverAssetId)+'?thumb';img.alt='';thumb.append(img);}else thumb.textContent=(p.title||'Scene').slice(0,1);const name=document.createElement('span');name.className='nav-label';name.textContent=p.title;b.append(thumb,name);b.setAttribute('aria-label',p.title);b.title=p.title+' · Ctrl/Cmd-click to select; Shift-click for a range; drag to reorder';b.classList.toggle('active',p.id===getProject()?.id);
+    const b=document.createElement('button');b.dataset.project=p.id;b.dataset.sortKey=p.id;b.oncontextmenu=e=>projectContext(e,p.id,p.title);const thumb=document.createElement('span');thumb.className='nav-thumbnail';if(p.coverAssetId){const img=document.createElement('img');img.src='/api/asset/'+encodeURIComponent(p.coverAssetId)+'?thumb';img.alt='';thumb.append(img);}else thumb.textContent=(p.title||'Scene').slice(0,1);const name=document.createElement('span');name.className='nav-label';name.textContent=p.title;b.append(thumb,name);b.setAttribute('aria-label',p.title);b.title=p.title+' · Ctrl/Cmd-click to select; Shift-click for a range; drag to reorder';b.classList.toggle('active',p.id===getProject()?.id);
     b.onclick=safe(async e=>{if(e.ctrlKey||e.metaKey){if(selectedProjects.has(p.id))selectedProjects.delete(p.id);else selectedProjects.add(p.id);projectAnchor=p.id;selection();return;}if(e.shiftKey&&projectAnchor){const all=[...tree.querySelectorAll('[data-project]')].map(x=>x.dataset.project),from=all.indexOf(projectAnchor),to=all.indexOf(p.id);if(from>=0&&to>=0)for(const id of all.slice(Math.min(from,to),Math.max(from,to)+1))selectedProjects.add(id);selection();return;}if(isBusy())throw Error('Wait for the current request.');selectedProjects.clear();projectAnchor=p.id;selection();await save();await loadProject(p.id);await navigate('scene');});
     list.append(b);
    }
