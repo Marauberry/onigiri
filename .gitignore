@@ -1,0 +1,24 @@
+data/
+runtime/
+config.local.json
+__pycache__/
+*.pyc
+*.log
+test-results/
+
+# Local experiments and private working notes
+.*[0-9]*.mjs
+PROGRESS.md
+AGENTS.md
+ITERATION-*.md
+FEEDBACK-AUDIT.md
+REFERENCE-RESEARCH.md
+the big change toward minimax design.md
+*.gguf
+*.safetensors
+*.ckpt
+
+# Machine-specific development browser harnesses
+scripts/*.mjs
+models/
+instructions/nsfw-detailer.md

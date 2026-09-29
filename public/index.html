@@ -1,0 +1,471 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Onigiri</title>
+<link rel="icon" href="/onigiri.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/studio.css">
+</head>
+
+<body>
+
+<script>
+ (function(){try{const theme=localStorage.getItem('h3-theme')||'system';document.documentElement.dataset.theme=theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):theme;if(sessionStorage.getItem('onigiri-splash'))document.documentElement.classList.add('splash-quiet');}catch{}})();
+</script>
+<div id="splash" role="status" aria-live="polite">
+<div class="splash-logos"><img src="/onigiri.svg" alt=""><img src="/onigiri.svg" alt=""><img src="/onigiri.svg" alt=""></div>
+<p class="splash-title">Onigiri</p>
+<div class="splash-bar"><span></span></div>
+<p class="splash-note">Your local creative workspace</p>
+<button type="button" class="splash-skip">Skip</button>
+</div>
+<header class="topbar">
+<a class="brand" href="/" aria-label="Onigiri">
+<img class="brand-logo" src="/onigiri.svg" alt="">
+<span>Onigiri<small>LOCAL CREATIVE WORKSPACE</small>
+</span>
+</a>
+<div class="top-actions">
+<span id="connection" class="connection">Standalone workspace</span>
+<select id="theme" aria-label="Appearance" class="theme-picker">
+<option value="system">System</option>
+<option value="light">Light</option>
+<option value="dark">Dark</option>
+</select>
+<button id="exportButton" class="quiet">Export</button>
+<button id="historyButton" class="quiet">History</button>
+<button id="settingsButton" class="quiet">Settings</button>
+<button id="sendButton" class="primary">Save snapshot <span>↗</span>
+</button>
+</div>
+</header>
+
+<div class="workspace">
+
+<aside class="library">
+<div class="project-picker">
+<label for="projectSelect">PROJECT</label>
+<div class="row">
+<button id="projectDashboard" class="project-launch">Browse projects <span>⌘</span>
+</button>
+<select hidden id="projectSelect" aria-label="Project">
+</select>
+<button id="newProject" class="icon-button" title="New project">＋</button>
+</div>
+<div class="row">
+<button hidden id="deleteProject" class="quiet danger">Move to Trash</button>
+<button id="importPackage" class="quiet">Import</button>
+<input id="packageInput" type="file" accept=".zip,.json" hidden>
+<button hidden id="trashButton" class="quiet">Trash</button>
+</div>
+</div>
+<div class="section-heading">
+<h2>References <span id="refCount">0</span>
+</h2>
+<button id="addFiles" class="icon-button" title="Add references">＋</button>
+</div>
+<input id="fileInput" type="file" multiple accept="image/png,image/jpeg,image/webp,image/bmp,video/*,audio/*" hidden>
+<div id="dropzone" class="dropzone">
+<span class="drop-symbol">＋</span>
+<strong>Bring your scene into focus</strong>
+<p>Drop images, video, or audio.<br>Everything stays on this computer.</p>
+<button id="browseFiles">Add references</button>
+</div>
+<div id="referenceList" class="reference-list">
+</div>
+<div class="subject-section">
+<div class="section-heading">
+<h2>Subjects</h2>
+<button id="addSubject" class="icon-button" title="Add subject">＋</button>
+</div>
+<div id="subjectList">
+</div>
+<button id="undoSubject" class="quiet" hidden>Undo deletion</button>
+<p class="hint">Name the people, places, and things your scene follows.</p>
+</div>
+<div class="library-footer">
+<span class="local-dot">
+</span> Local files. Your models. Your ideas.</div>
+</aside>
+
+<main>
+<div class="document-heading">
+<div class="eyebrow">
+</div>
+<input id="projectTitle" class="title-input" aria-label="Project title" placeholder="Untitled scene">
+<div class="document-meta">
+<span id="saveStatus">Saved locally</span>
+<span>·</span>
+<span id="charCount">0 characters</span>
+</div>
+</div>
+<section class="brief-block">
+<label for="brief">THE IDEA</label>
+<textarea id="brief" rows="2" placeholder="A quiet café at dusk. Two old friends meet again. What happens next?">
+</textarea>
+</section>
+<div class="editor-toolbar">
+<div class="segmented">
+<button id="writeTab" class="active">Write</button>
+<button id="checkButton">Check <span id="issueCount">
+</span>
+</button>
+</div>
+<div class="row">
+<button id="templateButton" class="quiet">Insert structure</button>
+<button id="copyButton" class="quiet">Copy prompt</button>
+</div>
+</div>
+<section class="editor-wrap">
+<textarea id="prompt" spellcheck="false" aria-label="H3 prompt" placeholder="Start with a scene, a subject, a sound.&#10;&#10;Type &lt; to reference your media or subjects.&#10;Type [ to add a shot.&#10;&#10;Or discuss your idea with the Director and draft it.">
+</textarea>
+<div id="autocomplete" role="listbox" aria-label="Prompt completions" hidden>
+</div>
+<div id="checks" hidden>
+</div>
+</section>
+<footer class="editor-footer">
+<span>
+<kbd>&lt;</kbd> references <kbd>[</kbd> shots <kbd>Ctrl</kbd> + <kbd>S</kbd> save</span>
+<button id="addDialogue" class="quiet">＋ Dialogue</button>
+<button id="addShot" class="quiet">＋ Next shot</button>
+</footer>
+</main>
+
+<aside class="inspector">
+<section class="assistant-card">
+<div id="modelSelectHost" hidden>
+<label for="modelSelect">MODEL</label>
+<select id="modelSelect">
+<option value="">Discovering models…</option>
+</select>
+</div>
+<div id="memoryStatus" class="hint" role="status">
+<span class="memory-dot">
+</span> Checking memory…</div>
+<button id="unloadComfy" class="quiet" title="Releases models only when ComfyUI queues are idle">Unload idle ComfyUI models</button>
+<div id="modelHint" class="hint">Models load only when needed.</div>
+<section class="settings-section" id="writingDirection">
+<h3>Writing Direction</h3>
+<div class="writing-options">
+<label for="dialogueLanguage">Dialogue language</label>
+<input id="dialogueLanguage" type="text" placeholder="Auto or Japanese, English�">
+<label for="dialogueMode">Dialogue handling</label>
+<select id="dialogueMode">
+<option value="translate">Translate to requested language</option>
+<option value="preserve">Keep original dialogue</option>
+</select>
+<label for="detail">Detail</label>
+<select id="detail">
+<option value="brief">Concise</option>
+<option value="balanced">Balanced</option>
+</select>
+<label class="checkbox toggle-row">
+<input id="detailEnhancement" type="checkbox" checked> Visual &amp; sound detail</label>
+<p class="hint">Grounded motion, camera and sound cues.</p>
+<label class="checkbox toggle-row spaced-toggle">
+<input id="reviewDraft" type="checkbox" checked> Review full drafts for consistency</label>
+<p class="hint">Extra pass with the same model; slower.</p>
+</div>
+</section>
+<section class="settings-section" id="notifications">
+<h3>Notifications</h3>
+<p class="hint">Signal when a Director reply or an arrangement finishes.</p>
+<label class="checkbox toggle-row">
+<input id="notifySound" type="checkbox" checked> Notification sound</label>
+<p class="hint">A low bass ping from this device.</p>
+<label class="checkbox toggle-row spaced-toggle">
+<input id="notifyVisual" type="checkbox" checked> Notification visual</label>
+<p class="hint">A yellow glow around the Director chat; red on failure.</p>
+</section>
+</section>
+<section id="referenceDetails" hidden>
+</section>
+<section class="output-card">
+<div class="section-heading">
+<h2>Canvas</h2>
+<span class="badge">REF2VA</span>
+</div>
+<div class="canvas-simple">
+</div>
+<div hidden>
+<select id="aspect">
+<option>16:9</option>
+<option>9:16</option>
+<option>1:1</option>
+<option>4:3</option>
+<option>3:4</option>
+<option>3:2</option>
+<option>2:3</option>
+<option>5:4</option>
+<option>4:5</option>
+<option>21:9</option>
+<option>9:21</option>
+<option>2:1</option>
+<option>1:2</option>
+<option>Custom</option>
+</select>
+<input id="customAspect">
+<input id="lockAspect" type="checkbox" checked>
+<input id="width">
+<input id="height">
+<span id="canvasActual">
+</span>
+</div>
+</section>
+<section class="duration-card">
+<label for="length">DURATION</label>
+<input id="length" aria-label="Duration slider" type="range" min="5" max="3592" step="17">
+<div class="dimensions">
+<label>Frames<input id="durationFrames" type="number" min="5" max="3592" step="1">
+</label>
+<label>Seconds<input id="durationSeconds" type="number" min="0.21" max="149.67" step="0.01">
+</label>
+</div>
+<p id="durationActual" class="hint">
+</p>
+</section>
+</aside>
+
+</div>
+<div id="toast" role="status" hidden>
+</div>
+
+<dialog id="settings">
+<form method="dialog">
+<div class="section-heading">
+<h2>Settings</h2>
+<button class="icon-button" aria-label="Close settings">×</button>
+</div>
+</form>
+<p class="muted">One llama.cpp runtime. Choose your Bonsai model folder; tune performance below.</p>
+<label for="modelDirs">MODEL FOLDERS · ONE PER LINE</label>
+<textarea id="modelDirs" rows="3">
+</textarea>
+<button id="scanModels">Save folders & rescan</button>
+<hr>
+<label for="projectorSelect" hidden>AUTOMATIC PROJECTOR</label>
+<select id="projectorSelect" hidden>
+<option value="">Text only</option>
+</select>
+<p class="hint">Use the matching mmproj from the same model release. Compatibility is checked when the model loads.</p>
+<div class="dimensions">
+<label>GPU layers<input id="gpuLayers" value="auto">
+</label>
+<label>Context<input id="contextSize" type="number" min="2048" max="32768" step="1024" value="8192">
+</label>
+<label>Output tokens<input id="outputTokens" type="number" min="64" max="4096" value="1800">
+</label>
+</div>
+<label class="checkbox">
+<input id="cpuMoe" type="checkbox"> Keep MoE experts in RAM</label>
+<button id="saveProfile" class="primary full">Save model settings</button>
+<p id="runtimeInfo" class="hint">
+</p>
+</dialog>
+
+<dialog id="historyDialog">
+<form method="dialog">
+<div class="section-heading">
+<h2 id="historyTitle">History</h2>
+<button class="icon-button" aria-label="Close history">�</button>
+</div>
+</form>
+<p class="hint">Restore an earlier version without losing current work. Snapshots keep their original references.</p>
+<div id="historyList">
+</div>
+</dialog>
+
+<dialog id="resultsDialog">
+<form method="dialog">
+<div class="section-heading">
+<h2>Add reference</h2>
+<button aria-label="Close results">Close</button>
+</div>
+</form>
+<div class="results-toolbar">
+<button id="recentFiles">＋ Add file</button>
+<div class="results-comfy">
+<button id="comfyMenu" class="quiet" aria-expanded="false" aria-controls="comfyPanel">ComfyUI</button>
+<div id="comfyPanel" class="comfy-panel" hidden>
+<h3>ComfyUI output folder</h3>
+<p class="hint">Onigiri finds your ComfyUI output folder automatically. Running more than one ComfyUI? Paste the output folder you want to browse here.</p>
+<label>Output path<input id="comfyPath" type="text" placeholder="C:\Users\you\ComfyUI\output"></label>
+<div class="row">
+<button id="comfySave" class="primary">Use this folder</button>
+<button id="comfyClear" class="quiet">Auto-detect</button>
+</div>
+<p id="comfyStatus" class="hint" role="status"></p>
+</div>
+</div>
+</div>
+<div id="resultsList" class="result-grid">
+</div>
+</dialog>
+<dialog id="videoEditor">
+<form method="dialog">
+<div class="section-heading">
+<h2>Prepare video reference</h2>
+<button>Close</button>
+</div>
+</form>
+<video id="cutPreview" style="width:100%;max-height:300px">
+</video>
+<div class="row">
+<button id="videoPlay" aria-label="Play or pause">▶</button>
+<input id="videoSeek" type="range" min="0" step="0.01" aria-label="Video position">
+<span id="videoClock">
+</span>
+<button id="videoAddSource">＋ Add video</button>
+<input id="videoSourceFile" type="file" accept="video/*" hidden>
+</div>
+<p class="hint">Drag IN / OUT to trim the selected range. Click the filmstrip to scrub. Shaded footage is excluded from this range.</p>
+<img id="filmstrip" alt="Video filmstrip" style="width:100%">
+<img id="waveform" alt="Audio waveform" style="width:100%;max-height:60px">
+<div class="row">
+<button id="frameBack">− Frame</button>
+<button id="frameForward">＋ Frame</button>
+</div>
+<label hidden>Trim in<input id="inHandle" type="range" min="0" style="width:100%">
+</label>
+<label hidden>Trim out<input id="outHandle" type="range" min="0" style="width:100%">
+</label>
+<div class="dimensions">
+<label>In seconds<input id="cutStart" type="number" step="0.01">
+</label>
+<button id="markStart">Mark in</button>
+<label>Out seconds<input id="cutEnd" type="number" step="0.01">
+</label>
+<button id="markEnd">Mark out</button>
+</div>
+<button id="addCut">Keep this range</button>
+<button id="previewCuts">Preview kept ranges</button>
+<div id="cutList">
+</div>
+<p id="cutTotal" class="hint">
+</p>
+<div class="dimensions">
+<label>Output height<input id="cutHeight" type="number" min="64" step="2">
+</label>
+<label class="checkbox">
+<input id="cutAudio" type="checkbox">Keep audio</label>
+</div>
+<label>Timing<select id="cutTiming">
+<option value="keep">Keep original speed</option>
+<option value="match">Set scene duration from kept ranges</option>
+<option value="retime">Retime kept ranges to scene duration</option>
+</select>
+</label>
+<p class="hint">Retiming changes motion speed. Scene duration is aligned to H3’s frame grid; inspection uses sampled frames.</p>
+<label>Output<select id="cutOutput">
+<option value="video">Video reference</option>
+<option value="audio">Audio only — add as a separate reference</option>
+</select>
+</label>
+<button id="createVideoReference" class="primary full">Create reference</button>
+</dialog>
+<dialog id="exportDialog">
+<form method="dialog">
+<div class="section-heading">
+<h2>Export scene</h2>
+<button>Close</button>
+</div>
+</form>
+<p class="muted">Choose where to save. Portable packages include your reference files; metadata alone requires the original media.</p>
+<label class="checkbox">
+<input id="exportMedia" type="checkbox" checked>Include reference files</label>
+<label class="checkbox">
+<input id="exportHistory" type="checkbox">Include history</label>
+<label class="checkbox">
+<input id="exportSources" type="checkbox">Include original video sources</label>
+<details>
+<summary>Save to a specific folder</summary>
+<label for="exportFolder">Existing folder</label>
+<input id="exportFolder" type="text" placeholder="C:\My scenes" style="width:100%;padding:10px">
+<p class="hint">Remembered on this browser. Leave empty to use Save as or browser downloads.</p>
+</details>
+<p id="exportSize" class="hint">
+</p>
+<button id="saveExport" class="primary full">Save as…</button>
+</dialog>
+<dialog id="projectDialog" class="project-dialog">
+<form method="dialog">
+<div class="section-heading">
+<div>
+<h2>Your scenes</h2>
+</div>
+<button>Close</button>
+</div>
+</form>
+<div class="dashboard-toolbar">
+<input id="projectSearch" type="search" placeholder="Find a project…">
+<select id="projectFolder">
+<option value="">All folders</option>
+</select>
+<button id="showTemplates" hidden>Templates</button>
+<button id="dashboardTrash" class="quiet">Trash</button>
+<button id="dashboardNew" class="primary">New Project</button>
+</div>
+<details class="storage-settings">
+<summary>Project storage</summary>
+<p class="hint">Copy all projects, media and history to an empty folder. The original remains untouched.</p>
+<div class="row">
+<input id="storageFolder" type="text" placeholder="D:\H3 Scenes">
+<button id="moveStorage">Copy and use folder</button>
+</div>
+<p id="storageCurrent" class="hint">
+</p>
+</details>
+<button id="trashSelected" class="quiet danger" hidden>Move selected to Trash</button>
+<nav class="project-views">
+<button data-project-view="home">Home</button>
+<button data-project-view="all">All Projects</button>
+</nav>
+<section id="homeIntro">
+<span class="eyebrow">YOUR CREATIVE SPACE</span>
+<h3>Keep inspiration close.</h3>
+<p>Keep scenes and whole project folders here. Add a folder below, or right-click a scene to show it on Home.</p>
+</section>
+<section id="homeFolders">
+</section>
+<div id="projectCards" class="project-grid">
+</div>
+</dialog>
+<dialog id="projectActions">
+<form method="dialog">
+<div class="section-heading">
+<h2>Scene details</h2>
+<button>Close</button>
+</div>
+</form>
+<label>Name<input id="manageTitle" type="text">
+</label>
+<label>Folder<input id="manageFolder" type="text" placeholder="e.g. Short films" list="knownFolders">
+</label>
+<datalist id="knownFolders">
+</datalist>
+<label>Cover<select id="manageCover">
+</select>
+</label>
+<button id="uploadCover">Choose cover image…</button>
+<input id="coverFile" type="file" accept="image/*" hidden>
+<p class="hint">A cover is never added to conditioning references.</p>
+<div class="row">
+<button id="saveProjectDetails" class="primary">Save details</button>
+<button id="duplicateProject">Duplicate</button>
+<button id="saveAsTemplate" hidden>Save as template</button>
+</div>
+<details>
+<summary>More actions</summary>
+<button id="trashManagedProject" class="quiet danger">Move to Trash</button>
+</details>
+</dialog>
+<script type="module" src="/app.mjs">
+</script>
+</body>
+</html>
+
+

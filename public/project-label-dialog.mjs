@@ -1,0 +1,12 @@
+import {labelColors,labelText} from './project-labels.mjs';
+export function projectLabelDialog(project,projects,{label,onSave,onRemove}){
+ const dialog=document.createElement('dialog');dialog.className='label-dialog';let color=label?.color||labelColors[0];
+ const heading=document.createElement('h2');heading.textContent=label?'Edit project ID':'Project ID';const colors=document.createElement('div');colors.className='label-colors';
+ for(const value of labelColors){const b=document.createElement('button');b.style.background=value;b.setAttribute('aria-label','Label color '+value);b.onclick=()=>{color=value;draw();};colors.append(b);}
+ const input=document.createElement('input');input.value=label?.pattern||'scene (n)';input.setAttribute('aria-label','Project ID pattern');input.maxLength=60;const preview=document.createElement('span');preview.className='scene-label';
+ const draw=()=>{preview.style.setProperty('--label-color',color);preview.textContent=labelText({pattern:input.value},project,[...projects.filter(p=>p.id!==project.id),{...project,projectLabels:[{pattern:input.value}]}]);};input.oninput=draw;
+ const hint=document.createElement('small');hint.textContent='Use (n) for automatic numbering.';const actions=document.createElement('div');actions.className='row';
+ const close=document.createElement('button');close.textContent='Cancel';close.onclick=()=>dialog.close();const save=document.createElement('button');save.textContent='Save';save.className='primary';save.onclick=async()=>{if(!input.value.trim())return;save.disabled=true;try{await onSave({id:label?.id||crypto.randomUUID(),pattern:input.value.trim(),color,createdAt:label?.createdAt||new Date().toISOString()});dialog.close();}catch(e){hint.textContent=e.message;}finally{save.disabled=false;}};actions.append(close,save);
+ if(label&&onRemove){const more=document.createElement('details');more.innerHTML='<summary>More</summary>';const remove=document.createElement('button');remove.textContent='Remove label';remove.onclick=async()=>{await onRemove();dialog.close();};more.append(remove);dialog.append(more);}
+ dialog.prepend(heading,colors,input,preview,hint,actions);dialog.onclick=e=>{if(e.target===dialog&&!(e.clientX>=dialog.getBoundingClientRect().left&&e.clientX<=dialog.getBoundingClientRect().right&&e.clientY>=dialog.getBoundingClientRect().top&&e.clientY<=dialog.getBoundingClientRect().bottom))dialog.close();};dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);draw();dialog.showModal();
+}

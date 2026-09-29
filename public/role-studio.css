@@ -1,0 +1,69 @@
+/* Reference role studio: local source preview, role selection and editable result. */
+.role-studio {
+  width: min(1180px, calc(100vw - 48px));
+  max-width: none;
+  max-height: calc(100dvh - 48px);
+  padding: 22px;
+  overflow: auto;
+  border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+  border-radius: 24px;
+  box-shadow: 0 28px 90px #0004, 0 2px 8px #0002;
+  animation: role-studio-enter 160ms ease-out;
+}
+.role-studio::backdrop { background: #090d1873; backdrop-filter: blur(9px); }
+.role-studio > .section-heading { margin-bottom: 18px; gap: 20px; align-items: center; }
+.role-studio > .section-heading h2 { font-size: 20px; letter-spacing: -.025em; margin: 0; }
+.role-studio-body { display: grid; grid-template-columns: minmax(200px, .85fr) minmax(270px, 1.1fr) minmax(190px, .65fr); gap: 18px; align-items: start; }
+.role-studio .role-preview-panel, .role-studio .role-choice-panel, .role-studio .role-output-panel, .role-studio .role-source-panel { min-width: 0; }
+.role-studio .role-preview-panel { grid-column: 1; grid-row: 1; position: sticky; top: 0; }
+.role-studio .role-choice-panel { grid-column: 2; grid-row: 1; }
+.role-studio .role-source-panel { grid-column: 3; grid-row: 1; }
+.role-studio.role-inspection-studio .role-studio-body { grid-template-columns: minmax(190px,.8fr) minmax(260px,1fr) minmax(270px,1fr); }
+.role-studio.role-inspection-studio .role-output-panel { grid-column: 3; grid-row: 1; }
+.role-studio.role-inspection-studio .role-source-panel { grid-column: 1; grid-row: 2; }
+.role-studio .role-media-preview { display: grid; place-items: center; min-height: 220px; padding: 10px; border-radius: 17px; background: color-mix(in srgb, currentColor 4%, transparent); border: 1px solid color-mix(in srgb, currentColor 9%, transparent); overflow: hidden; }
+.role-studio .role-media-preview img, .role-studio .role-media-preview video { display: block; width: 100%; max-height: min(52dvh, 540px) !important; object-fit: contain; border-radius: 9px; }
+.role-studio .role-media-preview audio { width: 100%; min-width: 0; }
+.role-studio label { display: grid; gap: 8px; margin: 0 0 16px; font-size: 12px; font-weight: 600; letter-spacing: .015em; }
+.role-studio input, .role-studio textarea, .role-studio select { width: 100%; min-width: 0; box-sizing: border-box; border-radius: 11px; font: inherit; font-weight: 400; letter-spacing: normal; }
+.role-studio textarea { padding: 12px; resize: vertical; min-height: 96px; max-height: 45dvh; line-height: 1.5; }
+.role-studio [data-output] { min-height: 240px; }
+.role-studio nav { padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, currentColor 5%, transparent); font-size: 12px; line-height: 1.5; margin-bottom: 12px; }
+.role-studio .role-tiles { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-bottom: 18px; max-height: 38dvh; overflow: auto; padding: 2px; }
+.role-studio .role-tiles > button { min-height: 44px; margin: 0; text-align: left; padding: 10px 12px; overflow-wrap: anywhere; white-space: normal; border-radius: 12px; font-size: 13px; line-height: 1.35; }
+.role-studio .role-tiles > .hint { grid-column: 1 / -1; }
+.role-studio button { transition: background-color 140ms ease, box-shadow 140ms ease, transform 140ms ease; }
+.role-studio button:active:not(:disabled) { transform: scale(.985); }
+.role-studio button:focus-visible, .role-studio select:focus-visible, .role-studio textarea:focus-visible { outline: 3px solid #5b9aff9c; outline-offset: 2px; }
+.role-studio [data-confirm], .role-studio [data-save], .role-studio [data-describe] { width: 100%; min-height: 40px; border-radius: 12px; white-space: normal; }
+.role-studio [data-describe] { margin-bottom: 16px; }
+.role-studio h3 { font-size: 14px; margin: 0 0 18px; }
+.role-studio .hint { line-height: 1.5; font-size: 12px; }
+.role-studio [data-status]:empty { display: none; }
+.role-studio [data-status] { margin: 16px 0 0; padding: 12px; border-radius: 10px; background: color-mix(in srgb, currentColor 5%, transparent); }
+.role-studio:has(.role-preview-panel[hidden]) .role-studio-body { grid-template-columns: minmax(260px,1fr); }
+.role-studio:has(.role-preview-panel[hidden]) .role-choice-panel { grid-column: 1; }
+.role-studio:has(.role-preview-panel[hidden]).role-inspection-studio .role-studio-body { grid-template-columns: minmax(240px,1fr) minmax(240px,1fr); }
+.role-studio:has(.role-preview-panel[hidden]).role-inspection-studio .role-output-panel { grid-column: 2; }
+@keyframes role-studio-enter { from { opacity: 0; transform: translateY(8px) scale(.99); } to { opacity: 1; transform: none; } }
+@media(max-width:900px) {
+  .role-studio { width: calc(100vw - 28px); max-height: calc(100dvh - 28px); padding: 18px; }
+  .role-studio .role-studio-body, .role-studio.role-inspection-studio .role-studio-body { grid-template-columns: minmax(180px,.8fr) minmax(240px,1fr); }
+  .role-studio .role-source-panel { grid-column: 1; grid-row: 2; }
+  .role-studio.role-inspection-studio .role-output-panel { grid-column: 2; grid-row: 2; }
+  .role-studio .role-media-preview { min-height: 160px; }
+}
+@media(max-width:600px) {
+  .role-studio { padding: 16px; border-radius: 18px; }
+  .role-studio .role-studio-body, .role-studio.role-inspection-studio .role-studio-body, .role-studio:has(.role-preview-panel[hidden]).role-inspection-studio .role-studio-body { display: flex; flex-direction: column; }
+  .role-studio .role-studio-body > section { width: 100%; position: static; }
+  .role-studio .role-preview-panel { order: 0; }
+  .role-studio .role-source-panel { order: 1; }
+  .role-studio .role-choice-panel { order: 2; }
+  .role-studio .role-output-panel { order: 3; }
+  .role-studio .role-media-preview img, .role-studio .role-media-preview video { max-height: 32dvh !important; }
+  .role-studio .role-tiles { max-height: none; }
+}
+@media(prefers-reduced-motion:reduce) { .role-studio { animation: none; } .role-studio button { transition: none; } }
+
+.role-source-thumbs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.role-source-thumbs button{padding:0 0 7px;overflow:hidden}.role-source-thumbs img{width:100%;aspect-ratio:4/3;object-fit:cover}.role-source-thumbs small{display:block;padding:4px;overflow:hidden;text-overflow:ellipsis}.role-source-panel>.hint{display:none}.role-output-panel>label:has([data-output]){margin-bottom:14px}
