@@ -6,6 +6,7 @@
 
 ![Platform](https://img.shields.io/badge/platform-Windows-4b5563?style=flat-square)
 ![ComfyUI](https://img.shields.io/badge/ComfyUI-custom%20node-3f5159?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-456650?style=flat-square)
 ![Node](https://img.shields.io/badge/Node.js-22%2B-456650?style=flat-square)
 ![Local inference](https://img.shields.io/badge/inference-local%20llama.cpp-50674f?style=flat-square)
 ![No accounts](https://img.shields.io/badge/accounts-none-292d29?style=flat-square)
@@ -205,4 +206,13 @@ Onigiri drafts prompts and validates their structure. It does not promise film-q
 
 ## License
 
-No license has been chosen yet, so the code is currently all rights reserved. If you want to build on it, open an issue and ask — adding a proper `LICENSE` is a deliberate step, not an oversight.
+MIT — see [LICENSE](LICENSE). Copyright © 2026 Marauberry.
+
+Publishing under MIT does not give your copyright away: it is you granting everyone permission to use the code. **You may** use, copy, modify, merge, publish, distribute, sublicense and sell it, including inside closed-source projects. **You must** keep the copyright notice and the license text with any copy or substantial portion of the code — that is what "credit" means here: whoever receives the code also receives the author's name and the license. It does not oblige anyone to advertise Onigiri in their UI or README, and nothing grants rights to the Onigiri name or logo.
+
+### Credits and third parties
+
+- The prompt contract in [`instructions/h3.md`](instructions/h3.md) is condensed from the Ref2VA material published by [MiniMax-AI/MiniMax-H3](https://github.com/MiniMax-AI/MiniMax-H3). That source material keeps its own terms; the MIT license above covers this repository's own code.
+- The runtime the setup scripts download comes from the [official Prism llama.cpp release](https://github.com/PrismML-Eng/llama.cpp/releases/tag/prism-b10743-adfffbe) under its own terms; [llama.cpp](https://github.com/ggml-org/llama.cpp) is MIT-licensed.
+- Model weights are never redistributed here. Bonsai 2 comes from its publishers ([Prism](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf), [Hikari07jp](https://huggingface.co/Hikari07jp/Ternary-Bonsai-2-27B-Abliterated-GGUF)) under their own licenses.
+- ComfyUI, MiniMax H3 and the model names are used descriptively. No affiliation or endorsement is implied.

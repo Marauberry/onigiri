@@ -2,6 +2,7 @@
   "name": "h3-prompt-helper",
   "version": "0.3.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
