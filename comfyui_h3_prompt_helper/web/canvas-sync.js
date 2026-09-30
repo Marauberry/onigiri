@@ -1,4 +1,4 @@
-const valid=c=>c&&['width','height'].every(k=>Number.isInteger(c[k])&&c[k]>=32&&c[k]<=2048&&c[k]%32===0)&&Number.isInteger(c.length)&&c.length>=5&&c.length<=3592&&(c.length-5)%17===0;
+const valid=c=>c&&['width','height'].every(k=>Number.isInteger(c[k])&&c[k]>=32&&c[k]%32===0)&&Number.isInteger(c.length)&&c.length>=5&&c.length<=3592&&(c.length-5)%17===0;
 export function canvasSync(node,app){
   const widgets=()=>Object.fromEntries(node.widgets.filter(w=>['override_canvas','width','height','length'].includes(w.name)).map(w=>[w.name,w]));let scheduled=false;
   node._h3PushCanvas=()=>{if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;const w=widgets();if(!w.width)return;const canvas=w.override_canvas.value?Object.fromEntries(['width','height','length'].map(k=>[k,w[k].value])):node.properties.h3SentCanvas;if(!valid(canvas))return;Object.assign(canvas,{targetMP:node.properties.h3TargetMP,aspectRatio:node.properties.h3AspectRatio,sizeMode:node.properties.h3SizeMode});node._h3Floating?.frame.contentWindow?.postMessage({type:'h3-node-canvas',canvas,projectId:node._h3EditingProjectId||node.properties.h3ProjectId},'http://127.0.0.1:47831');});};

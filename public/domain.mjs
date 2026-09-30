@@ -98,7 +98,7 @@ export function validate(project) {
     const seconds = refs.filter(r => r.type === kind || (kind === 'audio' && r.withAudio)).reduce((s,r) => s + (r.trimEnd || r.duration) - r.trimStart, 0);
     if (seconds > 15.05) errors.push(`Combined ${kind} reference duration exceeds 15 seconds.`);
   }
-  if (![project.width, project.height].every(n => Number.isInteger(n) && n >= 32 && n <= 2048 && n % 32 === 0)) errors.push('Width and height must be multiples of 32, up to 2048.');
+  if (![project.width, project.height].every(n => Number.isInteger(n) && n >= 32 && n % 32 === 0)) errors.push('Width and height must be whole multiples of 32 of at least 32 pixels.');
   if (!Number.isInteger(project.length) || project.length < 5 || project.length > 3592 || (project.length - 5) % 17 !== 0) errors.push('Frame count must use H3’s 17n+5 grid, up to 3592 frames.');
   for (const section of SECTIONS) {
     const match=project.prompt.match(new RegExp(`^${section}:([\\s\\S]*?)(?=^(?:${SECTIONS.join('|')}):|$(?![\\s\\S]))`,'m'));

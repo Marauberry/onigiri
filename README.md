@@ -82,7 +82,7 @@ An arrangeable board of intent, references, subjects, notes and the compiled pro
 
 ### Canvas and duration
 
-Official H3 768p short edge, megapixel presets, standard heights through 1080p, or an exact custom size on the 32-pixel grid — with duration in frames and seconds.
+The official H3 768p short edge plus 1/2 and 2× steps, megapixel presets, standard heights through 2160p (4K), or an exact custom size with no fixed side limit — everything rounded to the 32-pixel grid, with duration in frames and seconds. The same picker drives **Onigiri**, **Onigiri 2nd Pass** and the editor.
 
 ![Scene settings with the resolution picker and duration slider](docs/canvas-and-duration.png)
 

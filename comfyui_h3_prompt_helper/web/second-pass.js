@@ -66,7 +66,7 @@ app.registerExtension({
    const current=()=>{const guide=guideCanvas(node),aspectRatio=guide?.ratio||16/9;return {aspectRatio,guide};};
    const refreshResult=()=>{
     const {aspectRatio,guide}=current(),dimensions=canvasDimensions(aspectRatio,megapixels.value);
-    sizeLine.innerHTML=dimensions?`2nd pass <b>${dimensions.width} × ${dimensions.height}</b> · ${Number(megapixels.value.toFixed(3))} MP`:'That resolution exceeds the 2048 px side limit.';
+    sizeLine.innerHTML=dimensions?`2nd pass <b>${dimensions.width} × ${dimensions.height}</b> · ${Number(megapixels.value.toFixed(3))} MP`:'Choose a valid canvas size.';
     aspectLine.textContent=guide?`Aspect ${aspectRatio.toFixed(3)} from ${guide.source}${guide.sent?' (last sent canvas)':''}${guide.size?` · ${guide.size[0]} × ${guide.size[1]}`:''}`:'Aspect follows the connected guide (16:9 assumed until one is connected).';
    };
    const refreshPicker=resolutionPicker(host,{

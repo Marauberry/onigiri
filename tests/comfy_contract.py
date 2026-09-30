@@ -119,11 +119,11 @@ for mode, multiplier, size in [('2x dimensions', 2, 512), ('3x dimensions', 2, 7
     assert torch.equal(result[1]['samples'].tensors[1], a)
     assert torch.allclose(result[1]['samples'].tensors[0][:,:,5], torch.full_like(result[1]['samples'].tensors[0][:,:,5], 5))
 try:
-    helper.H3RefineCanvas().prepare_canvas(guide, {'samples': NestedTensor((v,a))}, Clip(), VisualVAE(), AudioVAE(), '4x dimensions', 2)
-    raise AssertionError('Over-limit upscale accepted')
+    helper.H3RefineCanvas().prepare_canvas(guide, {'samples': NestedTensor((v,a))}, Clip(), VisualVAE(), AudioVAE(), 'Megapixel multiplier', 300)
+    raise AssertionError('Out-of-range multiplier accepted')
 except ValueError:
     pass
-print('PASS: 2x/3x/4x dimensions, area multiplier, MP output, unchanged timing/audio and 2048 limit.')
+print('PASS: 2x/3x/4x dimensions, area multiplier, MP output, unchanged timing/audio; no 2048 px side limit.')
 
 for frames in (719, 957, 3592):
     long_guide = helper.H3SceneGuideV3().guide(snapshot, '', True, 832, 480, frames)
@@ -146,7 +146,15 @@ assert (width, height) == (1312, 736)
 # LBH Target dimensions, align 32, H3 spatial downsample 16 yields these exact pixels.
 assert round(width / 32) * 32 // 16 * 16 == width
 assert round(height / 32) * 32 // 16 * 16 == height
-for invalid in (0, 2.1, float('nan')):
+# Sizes beyond the old 2048 px side limit are now allowed everywhere.
+wide_guide = helper.H3SceneGuideV3().guide(snapshot, '', True, 2720, 1536, 124)
+assert wide_guide[1:3] == (2720, 1536)
+square = {**original, 'canvas_override': {**original['canvas_override'], 'width': 1024, 'height': 1024}}
+_, wide, tall = helper.OnigiriGuideResolution().resize(square, 2.36)
+assert (wide, tall) == (1536, 1536), (wide, tall)
+_, wide, tall = helper.OnigiriGuideResolution().resize(square, 4.2)
+assert (wide, tall) == (2048, 2048), (wide, tall)
+for invalid in (0, 300, float('nan')):
     try:
         helper.OnigiriGuideResolution().resize(original, invalid)
         raise AssertionError('Invalid MP accepted')

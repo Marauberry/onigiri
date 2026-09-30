@@ -143,8 +143,8 @@ class H3PromptHelper:
 
     def condition_item(self, clip, vae, audio_vae, cfg, item):
         w, h, length = item['width'], item['height'], item['length']
-        if any(not isinstance(n, int) or n < 32 or n > 2048 or n % 32 for n in [w,h]):
-            raise ValueError('Canvas dimensions must be multiples of 32, up to 2048.')
+        if any(not isinstance(n, int) or n < 32 or n % 32 for n in [w,h]):
+            raise ValueError('Canvas dimensions must be whole multiples of 32 of at least 32 pixels.')
         if not isinstance(length, int) or length < 5 or length > 3592 or (length - 5) % 17:
             raise ValueError('Invalid H3 frame count.')
         images, videos, audios, soundtracks = {}, {}, {}, {}
@@ -249,8 +249,8 @@ class H3SceneGuideV3(H3SceneGuide):
     def INPUT_TYPES(cls):
         inputs = super().INPUT_TYPES()
         inputs['required'].update({'override_canvas': ('BOOLEAN', {'default': False}),
-            'width': ('INT', {'default': 832, 'min': 32, 'max': 2048, 'step': 32}),
-            'height': ('INT', {'default': 480, 'min': 32, 'max': 2048, 'step': 32}),
+            'width': ('INT', {'default': 832, 'min': 32, 'max': 16384, 'step': 32}),
+            'height': ('INT', {'default': 480, 'min': 32, 'max': 16384, 'step': 32}),
             'length': ('INT', {'default': 124, 'min': 5, 'max': 3592, 'step': 17})})
         return inputs
 
@@ -258,7 +258,7 @@ class H3SceneGuideV3(H3SceneGuide):
         guide = super().guide(snapshot_path, prompt_override)[0]
         _, item = read_snapshot(snapshot_path)
         if override_canvas:
-            if width % 32 or height % 32 or not 32 <= width <= 2048 or not 32 <= height <= 2048 or not 5 <= length <= 3592 or (length-5) % 17:
+            if width % 32 or height % 32 or width < 32 or height < 32 or not 5 <= length <= 3592 or (length-5) % 17:
                 raise ValueError('Use dimensions aligned to 32 pixels and an H3 frame count of 5 + 17n.')
             guide['canvas_override'] = {'width': width, 'height': height, 'length': length}
             item.update(guide['canvas_override'])
@@ -269,7 +269,7 @@ class OnigiriGuideResolution:
     @classmethod
     def INPUT_TYPES(cls):
         return {'required': {'guide': ('H3_SCENE_GUIDE',),
-                             'megapixels': ('FLOAT', {'default': 1.0, 'min': 0.01, 'max': 2.0, 'step': 0.01})}}
+                             'megapixels': ('FLOAT', {'default': 1.0, 'min': 0.01, 'max': 256.0, 'step': 0.01})}}
     RETURN_TYPES = ('H3_SCENE_GUIDE', 'INT', 'INT')
     RETURN_NAMES = ('guide', 'width', 'height')
     FUNCTION = 'resize'
@@ -277,16 +277,14 @@ class OnigiriGuideResolution:
     DESCRIPTION = 'Changes guide resolution only. Connect width/height to LBH Target dimensions (align 32); connect guide to Onigiri conditioning. Does not upscale the sampled latent.'
 
     def resize(self, guide, megapixels):
-        if not isinstance(megapixels, (int, float)) or not math.isfinite(megapixels) or not 0.01 <= megapixels <= 2:
-            raise ValueError('Choose a resolution from 0.01 to 2 MP.')
+        if not isinstance(megapixels, (int, float)) or not math.isfinite(megapixels) or not 0.01 <= megapixels <= 256:
+            raise ValueError('Choose a resolution from 0.01 to 256 MP.')
         _, item = read_snapshot(guide['snapshot_path'])
         canvas = {**item, **guide.get('canvas_override', {})}
         ratio = canvas['width'] / canvas['height']
         # Same decimal MP and half-up, 32-pixel alignment as the editor.
         width = max(32, math.floor(math.sqrt(megapixels * 1_000_000 * ratio) / 32 + 0.5) * 32)
         height = max(32, math.floor(math.sqrt(megapixels * 1_000_000 / ratio) / 32 + 0.5) * 32)
-        if width > 2048 or height > 2048:
-            raise ValueError('This aspect ratio exceeds the 2048-pixel side limit at the selected MP.')
         result = {**guide, 'canvas_override': {**guide.get('canvas_override', {}), 'width': width, 'height': height}}
         return result, width, height
 
@@ -324,8 +322,6 @@ class H3RefinePass:
             raise ValueError('Choose a scale between 1 and 4.')
         width = max(32, round(video.shape[-1]*16*scale/32)*32)
         height = max(32, round(video.shape[-2]*16*scale/32)*32)
-        if max(width, height) > 2048:
-            raise ValueError('The target exceeds the helper 2048-pixel canvas limit.')
         batch, channels, frames, old_h, old_w = video.shape
         flat = video.permute(0,2,1,3,4).reshape(batch*frames,channels,old_h,old_w)
         scaled = torch.nn.functional.interpolate(flat, size=(height//16,width//16), mode='bilinear', align_corners=False)
@@ -348,7 +344,7 @@ class H3RefineCanvas(H3RefinePass):
     RETURN_TYPES = ('CONDITIONING', 'LATENT', 'INT', 'INT', 'FLOAT')
     RETURN_NAMES = ('positive', 'latent', 'width', 'height', 'megapixels')
     FUNCTION = 'prepare_canvas'
-    DESCRIPTION = '2x dimensions gives about 4x pixel area; 3x gives 9x; 4x gives 16x. Megapixel multiplier scales pixel area instead. Rounded to 32 pixels, maximum 2048 per side. Audio and timing remain unchanged. Use a separate sampler to refine.'
+    DESCRIPTION = '2x dimensions gives about 4x pixel area; 3x gives 9x; 4x gives 16x. Megapixel multiplier scales pixel area instead. Rounded to 32 pixels. Audio and timing remain unchanged. Use a separate sampler to refine.'
 
     def prepare_canvas(self, guide, latent, clip, vae, audio_vae, size_mode, megapixel_multiplier):
         modes = {'2x dimensions': 2.0, '3x dimensions': 3.0, '4x dimensions': 4.0}
